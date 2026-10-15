@@ -8,6 +8,15 @@
     "url": "https://github.com/mattpocock/skills"
   },
   "license": "MIT",
+  "pi": {
+    "skills": [
+      "./skills/engineering/setup-matt-pocock-skills",
+      "./skills/productivity/grilling",
+      "./skills/engineering/domain-modeling",
+      "./skills/engineering/research",
+      "./skills/engineering/wayfinder"
+    ]
+  },
   "scripts": {
     "changeset": "changeset",
     "version": "changeset version && node scripts/sync-plugin-version.mjs",
