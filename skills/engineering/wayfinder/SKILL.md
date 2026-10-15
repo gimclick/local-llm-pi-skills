@@ -78,10 +78,20 @@ The answer isn't part of the body; it's recorded on resolution (see [Work throug
 
 Every ticket is either **HITL** (human in the loop, worked _with_ a human who speaks for themselves) or **AFK**, driven by the agent alone. A HITL ticket only resolves through that live exchange; the agent never stands in for the human's side of it (a grilling agent that answers its own questions has broken this).
 
-- **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases to surface a fact a decision waits on. Resolved by a subagent that loads the `research` skill. Use when knowledge outside the current working directory is required.
+- **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases to surface a fact a decision waits on. Resolved by the `researcher` subagent, one at a time (see [Research delegation](#research-delegation)). Use when knowledge outside the current working directory is required.
 - **Prototype** (HITL): Raise the fidelity of the discussion by making a cheap, rough, concrete artifact to react to (an outline, a rough take, a stub, or UI/logic code) by loading the `prototype` skill. Links the prototype as an asset. Use when "how should it look" or "how should it behave" is the key question.
 - **Grilling** (HITL): Conversation. The default case. Always load both the `grilling` and `domain-modeling` skills.
 - **Task** (HITL or AFK): Manual work that must happen before a _decision_ can be made: nothing to decide, prototype, or research, but the discussion is blocked until it's done. Signing up for a service so its API can be judged, provisioning access, moving data so its shape can be seen. This is the one type that _does_ rather than decides, and it earns its place by unblocking a decision, not by delivering the destination. The agent drives it alone where it can (AFK); otherwise it hands the human a precise checklist (HITL). Resolved when the work is done; the answer records what was done and any resulting facts (credentials location, new URLs, row counts) later tickets depend on.
+
+## Research delegation
+
+Research is the only ticket type a session hands off, and this setup runs **one inference generation at a time**, so the handoff is **sequential**: at most one subagent runs at a time, and the next launches only once the previous one has returned. Never fan research out across children, and never background it and carry on working: the session blocks on each run.
+
+- **Invoke the configured `researcher` subagent directly**, in the foreground, one call at a time. It already carries its own research brief and its own web tools, so it loads no skill; it has no `subagent` tool, so it cannot nest.
+- **The child only gathers.** It receives the question, its scope, and what the decision is waiting on; it returns a cited brief to the parent. It opens no issue, posts no comment, commits nothing, and spawns nothing.
+- **The parent owns everything durable**: the GitHub Issue, the resolution comment, the commit, and the persistent findings file. Write the brief the child returned where this repo keeps research notes, link it from the ticket, and keep the map an index.
+- **Fit the session, not the ticket.** Resolve only the research this session can carry. When a `research` ticket is too big, still blocked, or simply not next, leave it open and unclaimed: an unresolved Wayfinder research ticket for a future session, never a half-done read closed as resolved.
+- **Evidence, not recollection.** A research ticket resolves on claims each tied to a source. A brief with no citations, or one that leaves the question unanswered, does not resolve it; record contradictions and missing evidence on the ticket rather than smoothing them over.
 
 ## Fog of war
 
@@ -116,7 +126,7 @@ User invokes with a loose idea.
 2. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** (the way to the destination is already clear, the whole journey small enough for one session), you don't need a map. Stop and ask the user how they'd like to proceed.
 3. **Create the map** (label `wayfinder:map`): Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
 4. **Create the tickets you can specify now** as child issues of the map, then wire blocking edges in a **second pass** (issues need ids before they can reference each other). Write cross-references in that pass too, with real ids: a placeholder `#<n>` auto-links to an unrelated issue. Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog: the **Not yet specified** section.
-5. **Fire the research subagents.** For each `research` ticket you just created, spin up a subagent that loads the `research` skill to resolve it in parallel, capturing its findings on a throwaway `research/<name>` branch with a context pointer from the ticket. Push the branch but open no PR: it is never merged.
+5. **Run the research tickets, one at a time.** For each `research` ticket you just created, run the `researcher` subagent in the foreground and wait for it to return before starting the next (see [Research delegation](#research-delegation)). The parent captures each brief it returns on a throwaway `research/<name>` branch with a context pointer from the ticket, and pushes the branch but opens no PR: it is never merged. Leave any research ticket this session could not carry open for a later session.
 6. Stop: charting is one session's work; it hand-resolves nothing.
 
 ### Work through the map
