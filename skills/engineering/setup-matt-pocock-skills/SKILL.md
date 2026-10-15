@@ -27,7 +27,17 @@ Look at the current repo to understand its starting state. Read whatever exists;
 - `docs/adr/` and any `src/*/docs/adr/` directories
 - `docs/agents/`: read what is actually there, file by file. A partial set (only `triage-labels.md`, say) is **not** completed setup: the sections whose files are missing are still unconfigured, and the ones present may hold choices that differ from the seed templates. Read them before re-offering a section.
 - `.scratch/`: a sign that a local-markdown issue tracker convention is already in use
-- Is the `triage` skill installed? (a `triage` skill folder alongside this one, or `triage` in your available skills.) This decides whether Section B runs at all.
+- Are the `triage` and `wayfinder` skills installed? `triage` decides whether Section B runs at all; `wayfinder` decides Section B1. **Never answer this from your available-skills block alone**: a skill marked `disable-model-invocation: true` is hidden from that block whether or not it is installed, and `wayfinder` is marked that way — so an installed `wayfinder` is invisible there, and Section B1 would silently never run. Check on disk instead, across the skill roots Pi actually scans: the checkout directory of every installed package, plus the Agent Skills locations.
+
+  ```bash
+  for root in $(pi list | grep -E '^    ' | sed 's/^ *//') ~/.agents/skills .agents/skills; do
+    [ -d "$root" ] || continue
+    find "$root" -maxdepth 6 -name SKILL.md -exec sh -c \
+      'grep -q "^name: wayfinder" "$1" && echo "wayfinder installed: $1"' _ {} \;
+  done
+  ```
+
+  `pi list` prints each installed package together with the directory Pi keeps its checkout in — resolve that from `pi list`, never assume a path, a host, or an account. A skill is a directory holding `SKILL.md`, discovered recursively, so match the frontmatter `name:` rather than a folder name. Swap `^name: triage` into the same loop for `triage`. Read that checkout only: it is Pi-managed and may sit on a different ref than the branch you are working on.
 - Monorepo signals: a `pnpm-workspace.yaml`, a `workspaces` field in `package.json`, or a populated `packages/*` with its own `src/`. These are present only in a genuinely large multi-package repo; their absence means single-context, which is almost every repo.
 
 ### 2. Present findings and ask
@@ -55,13 +65,13 @@ Record the choice in `docs/agents/issue-tracker.md`, and record the confirmed `O
 
 **Section B: Triage label vocabulary.** Skip this section entirely if the `triage` skill isn't installed (exploration told you), since an uninstalled skill needs no labels.
 
-If it is installed, ask exactly one question:
+If the disk check found it installed, ask exactly one question:
 
 > Do you want to keep the default triage labels? (recommended: **yes**)
 
 The defaults are the five canonical roles, each label string equal to its name: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. On **yes**, write them as-is. Only if the user says no, usually because their tracker already uses other names (e.g. `bug:triage` for `needs-triage`), collect the overrides so `triage` applies existing labels instead of creating duplicates.
 
-**Section B1: Wayfinder labels.** Skip this section entirely when the `wayfinder` skill isn't installed. Wayfinder's map and tickets carry labels of their own — `wayfinder:map` plus `wayfinder:<type>` for `research`/`prototype`/`grilling`/`task` — never a triage label. Read what the tracker already has (`gh label list -R <owner>/<repo> --json name --jq '[.[].name]'`, or the matching `glab` command), name the missing ones to the user, and create them **only** once the user has approved tracker setup and the Section A check showed the account can create labels. Ask before creating; a label is a permanent addition to the tracker.
+**Section B1: Wayfinder labels.** Skip this section entirely when the disk check in step 1 found no `wayfinder` skill — not your available-skills block, which never lists it (`wayfinder` is marked `disable-model-invocation: true`, so it is hidden there even when installed). Wayfinder's map and tickets carry labels of their own — `wayfinder:map` plus `wayfinder:<type>` for `research`/`prototype`/`grilling`/`task` — never a triage label. Read what the tracker already has (`gh label list -R <owner>/<repo> --json name --jq '[.[].name]'`, or the matching `glab` command), name the missing ones to the user, and create them **only** once the user has approved tracker setup and the Section A check showed the account can create labels. Ask before creating; a label is a permanent addition to the tracker.
 
 **Section C: Domain docs.** Default to **single-context** (one `GLOSSARY.md` + `docs/adr/` at the repo root). This fits almost every repo; write it without asking.
 
