@@ -12,6 +12,38 @@
 
 [![skills.sh](https://skills.sh/b/mattpocock/skills)](https://skills.sh/mattpocock/skills)
 
+> ## About this fork — read before using
+>
+> **This is an unofficial fork.** Everything below documents the original
+> [mattpocock/skills](https://github.com/mattpocock/skills) repository by Matt Pocock
+> (AI Hero). This fork is not published, maintained, or endorsed by Matt Pocock or AI Hero.
+> Upstream authorship and the MIT license are preserved unchanged (see [LICENSE](./LICENSE)).
+>
+> **Purpose:** a Pi-compatible adaptation of those skills for **local LLMs** and
+> **constrained inference** — small context windows, tight tool budgets, quantised models.
+> The intended audience is developers running Pi coding agents on their own hardware.
+>
+> **Goals of the adaptation:**
+>
+> - **Sequential, foreground delegation** — subagents run one at a time in the foreground,
+>   rather than parallel or background fan-out.
+> - **Reduced context waste** — fewer duplicated instructions and less tool output per turn.
+> - **Resumable multi-session development** — work spread across independent Pi sessions,
+>   with a reviewable baseline kept in Git.
+>
+> **Dependencies:** Hound and `pi-subagents` are **separate, optional dependencies**.
+> They are not vendored, forked, or bundled in this repository. Install them yourself if you want them.
+>
+> **Status: early integration and validation.** Nothing here is tested or verified yet.
+> No skill in this repo has been confirmed to work with Pi, local models, or constrained
+> inference. Do not assume any skill works until a verification note in this repo says so.
+>
+> **Upstream policy:** changes to `mattpocock/skills` are reviewed before being merged in.
+> Upstream history is never rewritten; our changes sit on top as separate commits.
+> Upstream baseline at the time of this fork: [`49dd158d1076134a641b33efb035946536778336`](https://github.com/mattpocock/skills/commit/49dd158d1076134a641b33efb035946536778336).
+
+---
+
 My agent skills that I use every day to do real engineering - not vibe coding.
 
 Developing real applications is hard. Approaches like GSD, BMAD, and Spec-Kit try to help by owning the process. But while doing so, they take away your control and make bugs in the process hard to resolve.
@@ -256,3 +288,9 @@ General workflow tools, not code-specific.
 
 - **[grilling](./skills/productivity/grilling/SKILL.md)**: Interview the user relentlessly about a plan, decision, or idea until every branch of the design tree is resolved. The reusable interview primitive behind `grill-me`, `grill-with-docs`, `triage`, `wayfinder` and `improve-codebase-architecture`.
 - **[writing-for-agents](./skills/productivity/writing-for-agents/SKILL.md)**: Writing documents for agents: skills, AGENTS.md/CLAUDE.md, and any doc an agent reaches by a pointer.
+
+## License & attribution
+
+MIT License — Copyright (c) 2026 Matt Pocock. See [LICENSE](./LICENSE).
+
+This repository is a fork of [mattpocock/skills](https://github.com/mattpocock/skills). The skills, documentation, and their commit history are upstream's; only the changes made in this fork are ours, and they are recorded as separate commits on top of the unmodified upstream history.
