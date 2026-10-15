@@ -1,14 +1,16 @@
+> **This fork (Pi adaptation):** this skill is user-invoked — type `/skill:setup-matt-pocock-skills`; no agent can fire it. Its GitHub tracker template is adapted (explicit target repo, capability checks, gated label writes) and **has not passed an end-to-end live test**. The shared runtime contract is in [the README](../../README.md).
+
 ## What it does
 
-`setup-matt-pocock-skills` answers three questions about one repo: where issues live, what the triage labels are called, and where the domain docs sit. It records the answers as markdown files under `docs/agents/`.
+Upstream, `setup-matt-pocock-skills` answers three questions about one repo: where issues live, what the triage labels are called, and where the domain docs sit. It records the answers as markdown files under `docs/agents/`. This fork adds a fourth — the `wayfinder` label vocabulary — and records the confirmed target repository with the tracker choice.
 
 Those files are the only thing that varies between repos. The skills themselves are identical everywhere. They read `docs/agents/issue-tracker.md` at run time and do what it says. That is why the set is not tied to GitHub, and why you never edit a skill file to point it at another tracker. Invoking it with "link the skills to a custom issue tracker" works with anything you can connect to programmatically, with no changes to the skills.
 
-It is a prompt-driven skill, not a deterministic script. It reads your `git remote`, `CLAUDE.md` and `GLOSSARY.md`, proposes what it found, and waits for you to confirm before it writes anything.
+It is a prompt-driven skill, not a deterministic script. It reads your `git remote`, `CLAUDE.md` and `GLOSSARY.md`, proposes what it found, and waits for you to confirm before it writes anything. In this fork it also reads a **GitHub capability check** (`gh repo view <owner>/<repo> --json hasIssuesEnabled,viewerPermission,viewerCanAdminister`) before it proposes GitHub, and it reads an existing partial `docs/agents/` set file by file rather than assuming a missing file means "not started".
 
 ## When to reach for it
 
-You invoke this by typing `/setup-matt-pocock-skills`; the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) won't reach for it on its own. Its metadata marks it non-invokable on purpose, so no other skill can fire it for you.
+You invoke this by typing `/skill:setup-matt-pocock-skills` in Pi; the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) won't reach for it on its own. Its metadata marks it non-invokable on purpose (`disable-model-invocation: true`), so no other skill can fire it for you — in Pi that also means it is absent from the agent's `<available_skills>` block, so nothing but a human typing the command can load it.
 
 Reach for it once per repo, before the first use of any other engineering skill. If [triage](https://aihero.dev/skills-triage), [to-spec](https://aihero.dev/skills-to-spec), [to-tickets](https://aihero.dev/skills-to-tickets) or [wayfinder](https://aihero.dev/skills-wayfinder) start guessing where your issues go, or apply labels your tracker doesn't have, this repo has not been set up yet. You can run it in a repo halfway through a project. The skill reads what is already there, so no earlier work is lost.
 
@@ -23,9 +25,11 @@ It writes into the repo you run it in:
 | `triage-labels.md` | `docs/agents/`, only when the `triage` skill is installed |
 | An `## Agent skills` block | whichever of `CLAUDE.md` or `AGENTS.md` already exists |
 
+In this fork, `issue-tracker.md` also carries a **Target repository** line (`owner/repo`) that you confirm during setup, and any capability the setup could not check is marked **unverified** in the file. Downstream skills pass the target as `-R` instead of re-inferring it from the remotes.
+
 You commit all of it as markdown. There is no user-level or global mode. The config lives in the repo, so every repo gets its own copy.
 
-## The three decisions
+## The decisions it makes
 
 It starts each section with the recommended answer, and skips any question its exploration already answered. Most runs need only two confirmations.
 
@@ -33,18 +37,21 @@ It starts each section with the recommended answer, and skips any question its e
 | --- | --- | --- |
 | **Issue tracker** | the one matching your `git remote` | always, because this is the one real choice |
 | **Triage labels** | keep the five canonical names (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`) | only if the `triage` skill is installed |
+| **Wayfinder labels** | `wayfinder:map` plus `wayfinder:<type>` for `research`/`prototype`/`grilling`/`task` | only if the `wayfinder` skill is installed (this fork's Section B1) |
 | **Domain docs** | single-context: one `GLOSSARY.md` plus `docs/adr/` at the root | only if it spots monorepo signals, and then it offers a multi-context `GLOSSARY-MAP.md` |
 
 The tracker options:
 
 | Option | Where issues live | Needs |
 | --- | --- | --- |
-| **GitHub** | the repo's GitHub Issues | the `gh` CLI |
+| **GitHub** | the repo's GitHub Issues | the `gh` CLI, Issues enabled on the named repo, and an account that can write |
 | **GitLab** | the repo's GitLab Issues | the `glab` CLI |
 | **Local markdown** | files under `.scratch/<feature>/` in this repo | nothing, not even a remote |
 | **Other** | wherever you say | one paragraph from you describing the workflow |
 
 The first three ship as templates in the skill and work out of the box. Local markdown is a full option, not a fallback. The skill supports a solo project with no remote. One caveat: don't use local markdown if you use GitHub. They are alternatives, so pick one.
+
+In this fork, GitHub is proposed only after two checks you confirm rather than assume. First, **name the `owner/repo`** and have you confirm it: a fork normally has `origin` (the fork, where its issues live) plus `upstream` (the original, where they do not), and ambiguity is yours to settle, never the agent's to guess. Second, **can that repo take issues**: `hasIssuesEnabled` is false on a fresh fork, so expect it on one. Enabling them (`gh repo edit <owner>/<repo> --enable-issues`) is a repository settings change and needs your approval; where Issues are off or the account cannot write, local markdown is the supported fallback.
 
 "Other" is a full option too. It is how Jira, Linear, Azure DevOps and Beads all work. You describe the workflow, the skill records your prose in `docs/agents/issue-tracker.md`, and the downstream skills follow the prose. Users have already built this: a Jira-over-[MCP](https://www.aihero.dev/ai-coding-dictionary/mcp) variant, a Gitea CLI shaped like `gh`, a hand-built local dashboard.
 
@@ -64,14 +71,18 @@ This is a known gap, and still open. The file-selection rule is "edit `CLAUDE.md
 
 **It didn't create my triage labels.**
 
-It doesn't. `docs/agents/triage-labels.md` is a *mapping*: it tells `/triage` which strings in your tracker correspond to the five canonical roles. It does not run `gh label create`. On a fresh GitHub repo the labels do not exist yet, and users have filed this as a bug more than once. Two consequences:
+Upstream it doesn't. `docs/agents/triage-labels.md` is a *mapping*: it tells `/triage` which strings in your tracker correspond to the five canonical roles, and it does not run `gh label create`. On a fresh GitHub repo the labels do not exist yet, and users have filed this as a bug more than once. Two consequences upstream:
 
 - If your tracker already uses the canonical names, the mapping is an identity table and there is nothing to configure. That is the intended common case, not a missing step.
-- This skill does not create [wayfinder](https://aihero.dev/skills-wayfinder)'s `wayfinder:map` and `wayfinder:<type>` labels either, and `gh issue create --label <missing>` fails instead of creating the label. Create them by hand before the first wayfinder run on a GitHub repo.
+- Upstream also creates none of [wayfinder](https://aihero.dev/skills-wayfinder)'s `wayfinder:map` or `wayfinder:<type>` labels, and `gh issue create --label <missing>` fails instead of creating one. People create them by hand before the first wayfinder run.
+
+**In this fork it does create them, behind a gate.** Labels are writes, so they are gated three ways: only the labels the tracker already lacks, only after you have approved tracker setup, and only where the capability check showed the account can create labels. Otherwise it reports the permission and leaves the vocabulary in `docs/agents/` for you to apply later. This covers both the triage vocabulary and the Wayfinder labels (this fork's Section B1, which runs only when `wayfinder` is installed). On GitHub the target is passed explicitly: `gh label create -R <owner>/<repo> <name> -c <6-hex>`.
+
+One more fork-only gate: with more than one GitHub remote, it asks before running `gh repo set-default <owner>/<repo>`, because that pins the target in `.git/config` — a change to the clone, not just a note in the docs.
 
 **Can I configure the other skills' behaviour here ([grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) cadence, question format, tone)?**
 
-No. It configures three things: tracker, labels, doc layout. Users have asked to make it the place for per-user preferences. The answer is that skills stay opinionated and take no per-user config. Preferences belong in your `CLAUDE.md` as plain instructions, which every skill already reads.
+No. It configures the tracker, the label vocabularies (triage, and Wayfinder's in this fork), and the doc layout — plus the target repository the tracker writes into. Users have asked to make it the place for per-user preferences. The answer is that skills stay opinionated and take no per-user config. Preferences belong in your `CLAUDE.md` as plain instructions, which every skill already reads.
 
 **Can I keep the config in `~/.claude` instead of committing it to every repo?**
 
@@ -85,7 +96,8 @@ One long-standing complaint says yes, in these words: *"having a skill to set up
 
 - `docs/agents/issue-tracker.md` and `docs/agents/domain.md` exist, plus `triage-labels.md` if `triage` is installed.
 - An `## Agent skills` section appears in the instruction file your harness reads, with a one-line summary pointing at each of those files.
-- The tracker it proposed matches the remote you use, and the label strings match labels that exist in your tracker.
+- The tracker it proposed matches the remote you use, its **Target repository** line names the `owner/repo` you confirmed, and the label strings match labels that exist in your tracker.
+- Any capability setup could not check — GitHub sub-issues and native blocking have no preflight that avoids touching a real issue — is marked **unverified** in the file, not assumed to work.
 - Afterwards, `/to-tickets` publishes without asking you where issues live, and `/triage` applies labels rather than inventing them.
 - Nothing in the skill files themselves changed. If setup edited a `SKILL.md`, something went wrong.
 
