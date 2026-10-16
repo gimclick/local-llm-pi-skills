@@ -1,3 +1,5 @@
+> **This fork (Pi adaptation):** wayfinder is user-invoked here — type `/skill:wayfinder`, no agent can reach for it. Its research tickets resolve **one at a time, in the foreground**, never in parallel and never in the background. The shared runtime contract is in [the README](../../README.md).
+
 ## What it does
 
 `wayfinder` takes an effort too big for one agent [session](https://www.aihero.dev/ai-coding-dictionary/session). This is an idea whose **destination** you can name but whose route you cannot yet see. Wayfinder charts it as a shared **map** of **decision tickets** on your issue tracker, then resolves the tickets one at a time until the route is clear.
@@ -6,7 +8,7 @@ It plans and does not build. Every ticket asks a question, and the answer is a d
 
 ## When to reach for it
 
-You invoke this by typing `/wayfinder`; the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) won't reach for it on its own.
+You invoke this by typing `/skill:wayfinder` in Pi; the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) won't reach for it on its own. Upstream harnesses type `/wayfinder`; in Pi the skill is marked `disable-model-invocation: true`, so it is absent from the agent's `<available_skills>` block and only the human can load it.
 
 It is the heaviest flow in the set, so the trigger is narrow. The effort must be larger than one agent session can hold, and the route to the destination must be unclear. The split is session count: `/grill-with-docs` for single-session planning, `/wayfinder` for multi-session planning.
 
@@ -22,7 +24,9 @@ Greenfield is not a requirement. People use wayfinder routinely on legacy and ha
 
 ## Prerequisites
 
-The map and its tickets live on the repo's issue tracker, so wayfinder needs the tracker setup from [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills). That step writes a "Wayfinding operations" section. The section describes how to express the map, its child tickets, blocking edges, and frontier queries on GitHub, GitLab, or local markdown. Wayfinder finds that doc through the pointer in your `CLAUDE.md` / `AGENTS.md`, not at a fixed path. With no tracker configured, it falls back to local markdown files.
+The map and its tickets live on the repo's issue tracker, so wayfinder needs the tracker setup from [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) — in Pi, type `/skill:setup-matt-pocock-skills`. That step writes a "Wayfinding operations" section. The section describes how to express the map, its child tickets, blocking edges, and frontier queries on GitHub, GitLab, or local markdown. Wayfinder finds that doc through the pointer in your `CLAUDE.md` / `AGENTS.md`, not at a fixed path. With no tracker configured, it falls back to local markdown files.
+
+In this fork the GitHub tracker template additionally records a **Target repository** (`owner/repo`) that every issue, label, and comment command passes as `-R`, and marks any capability setup could not check as **unverified**. GitHub offers no preflight for sub-issues or native blocking without touching a real issue, so those fall back to body-line conventions until the first real ticket proves them. **This fork's GitHub tracker support has not passed an end-to-end live test** — no map, ticket, label, or resolution comment has been published through it.
 
 The tracker does real work. Its native blocking links show the frontier in the tracker's own UI. On a tracker without native dependency links (a self-hosted Gitea, say), wayfinder infers blockers from the map text. That works, but you must supervise it more closely.
 
@@ -47,12 +51,12 @@ Every ticket carries a `wayfinder:<type>` label. Each ticket is either **[HITL](
 | --- | --- | --- | --- |
 | `grilling` | HITL | The default. The question can be settled by talking it through. | [grilling](https://aihero.dev/skills-grilling) plus [domain-modeling](https://aihero.dev/skills-domain-modeling), in a fresh session |
 | `prototype` | HITL | "How should this look" or "how should this behave": a question talking cannot settle. | [prototype](https://aihero.dev/skills-prototype), with a link from the ticket to the built artifact |
-| `research` | AFK | A fact outside the working directory is blocking a decision. | A [research](https://aihero.dev/skills-research) [subagent](https://www.aihero.dev/ai-coding-dictionary/subagent), started when you chart the map and run in parallel on a `research/<name>` branch |
+| `research` | AFK | A fact outside the working directory is blocking a decision. | The configured `researcher` [subagent](https://www.aihero.dev/ai-coding-dictionary/subagent), run **one at a time in the foreground** when you chart the map; the parent captures each brief on a `research/<name>` branch |
 | `task` | Either | Nothing to decide, but manual work blocks a decision, such as provisioning access, signing up for a service, or moving data so you can see its shape. | The agent alone where it can, otherwise a precise checklist for the human |
 
 `task` is the only type that *does* rather than decides. It belongs on the map only because it unblocks a decision, never because it delivers part of the destination. This type goes wrong most often in practice. Agents read it as an implementation step and start to write product code inside the map.
 
-Research is the only exception to *one ticket per session*.
+Research is the only ticket type a session hands off, and in this fork that hand-off is **sequential**: at most one `researcher` runs at a time, the session blocks on it, and the next launches only once it has returned. Resolve only the research this session can carry; anything too big, still blocked, or simply not next stays open and unclaimed for a later session.
 
 ## Common questions
 
@@ -73,6 +77,8 @@ This question is verbatim from a user report, and others report the same outcome
 
 **Can I work several tickets in parallel?**
 The frontier shows you which tickets you can take, and blocking edges make parallel work safe on paper. In practice, one ticket at a time is the safer default. If you work two grilling tickets at once, one session can ask you a question you just answered in the other, because the sessions share no [context](https://www.aihero.dev/ai-coding-dictionary/context). Prototype tickets have a known gap too. One user reported an agent that built three UI variations, chose one itself, and closed the ticket. That choice is yours, and the skill does not yet say so clearly enough. If you do run tickets in parallel, review the dependency graph yourself first.
+
+In this fork the answer is harder than "safer default". This setup has one inference slot, so research delegation is **enforced** as one-at-a-time foreground: two `researcher` runs side by side is a contract violation, not a style choice. Tickets themselves are still one-per-session by design, and nothing in this fork gives you a way to run them concurrently.
 
 **Do I have to use GitHub Issues?**
 No. Any issue tracker works. GitHub has the best support, because its native sub-issues and blocking relationships make the frontier visible without opening the map. People also use GitLab, Linear, Jira and local markdown. There are two caveats. On a tracker with no native blocking, wayfinder infers the dependency graph from text, and you must correct it by hand. Local markdown puts the artifacts in your repo, which is not recommended, because material stored in the repo tends to persist by accident. Open-source maintainers hit the opposite problem (public trackers fill up with agent-generated planning tickets) and often choose local markdown anyway.
@@ -100,4 +106,4 @@ It is this skill. v1.1 renamed it to `wayfinder`, and you invoke it as `/wayfind
 
 `wayfinder` is a **situational on-ramp**, not the default starting point. Most work still starts on the grill-led idea → ship chain. You use wayfinder when the idea is too big to hold in one session. It rejoins that chain at [to-spec](https://aihero.dev/skills-to-spec), because a cleared map hands off and does not build.
 
-Most of the work happens in other skills that wayfinder schedules. [grilling](https://aihero.dev/skills-grilling) and [domain-modeling](https://aihero.dev/skills-domain-modeling) resolve the default ticket type, [prototype](https://aihero.dev/skills-prototype) resolves the tickets that talk cannot settle, and [research](https://aihero.dev/skills-research) runs as a subagent so its reading stays out of your session. [handoff](https://aihero.dev/skills-handoff) moves work in and out: into a map from a conversation that grew too big, and out of a map when a side quest appears mid-session. For anything else, [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.
+Most of the work happens in other skills that wayfinder schedules. [grilling](https://aihero.dev/skills-grilling) and [domain-modeling](https://aihero.dev/skills-domain-modeling) resolve the default ticket type — in Pi, wayfinder loads both by reading their `SKILL.md` from the agent's `<available_skills>` block, since Pi has no Skill tool. [prototype](https://aihero.dev/skills-prototype) resolves the tickets that talk cannot settle, and [research](https://aihero.dev/skills-research) is the one ticket type wayfinder hands off: it invokes the configured `researcher` subagent directly, one at a time in the foreground, so the reading stays out of your context even though the session waits for it. [handoff](https://aihero.dev/skills-handoff) moves work in and out: into a map from a conversation that grew too big, and out of a map when a side quest appears mid-session. For anything else, [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.

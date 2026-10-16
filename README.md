@@ -34,9 +34,24 @@
 > **Dependencies:** Hound and `pi-subagents` are **separate, optional dependencies**.
 > They are not vendored, forked, or bundled in this repository. Install them yourself if you want them.
 >
+> **Runtime requirements (what the adapted skills assume):**
+>
+> - **Foreground subagents.** A delegated run is started and waited for; nothing is backgrounded.
+> - **Sequential execution.** One inference slot at a time: at most one subagent runs, and the next
+>   launches only once the previous one has returned. No fan-out across children.
+> - **An optional `researcher` subagent** (provided by `pi-subagents`, Hound-backed). Where it is not
+>   configured, the parent does the reading itself with whatever web tools it has — the job binds,
+>   not the delegation.
+> - **Pi skill invocation.** Pi has no Skill tool. A model-invoked skill is loaded by reading its
+>   `SKILL.md`, advertised by name, description and path in the agent's `<available_skills>` block.
+>   A user-invoked skill (`disable-model-invocation: true` in frontmatter) is absent from that block,
+>   so no agent can load it: only the human can, by typing `/skill:<name>`.
+>
 > **Status: early integration and validation.** Nothing here is tested or verified yet.
 > No skill in this repo has been confirmed to work with Pi, local models, or constrained
 > inference. Do not assume any skill works until a verification note in this repo says so.
+> In particular, the **GitHub issue-tracker setup is adapted but has not passed an end-to-end
+> live test**: no map, ticket, label, or resolution comment has been published through it.
 >
 > **Upstream policy:** changes to `mattpocock/skills` are reviewed before being merged in.
 > Upstream history is never rewritten; our changes sit on top as separate commits.
@@ -128,9 +143,30 @@ When the installer asks which skills to take, include `setup-matt-pocock-skills`
 
 </details>
 
+<details>
+<summary><strong>Pi</strong> (this fork's target)</summary>
+
+Pi discovers skills by scanning its configured skill directories for folders that contain `SKILL.md`; it advertises each one's name, description and path, and loads the full instructions only when a task calls for them. Force a load with `/skill:<name>`.
+
+This fork carries a `pi.skills` manifest in `package.json` that selects the five skills the adapted Wayfinder flow needs:
+
+| Skill | Invocation in Pi |
+| --- | --- |
+| `setup-matt-pocock-skills` | user-invoked (`disable-model-invocation: true`) — type `/skill:setup-matt-pocock-skills` |
+| `wayfinder` | user-invoked — type `/skill:wayfinder` |
+| `grilling` | model-invoked — reached for when the task fits, or forced with `/skill:grilling` |
+| `domain-modeling` | model-invoked |
+| `research` | model-invoked |
+
+The two user-invoked skills are **not** in the agent's `<available_skills>` block, so no other skill and no agent can fire them. Everything in this fork that needs them says so in the docs, and the skills themselves say which command to name.
+
+The other skills in this repo are still upstream-only: they are present in the tree, documented as upstream behaviour, and not part of this fork's manifest.
+
+</details>
+
 ### 2. Run `/setup-matt-pocock-skills`
 
-In your agent, run it once per repo. It will:
+In your agent, run it once per repo. In Pi, type `/skill:setup-matt-pocock-skills` — the skill is marked `disable-model-invocation: true`, so no agent will reach for it. It will:
 
 - Ask you which issue tracker you want to use (GitHub, GitLab, local files, or anything else you describe)
 - Ask you what labels you apply to tickets when you triage them (`/triage` uses labels)
@@ -240,7 +276,7 @@ Software engineering fundamentals matter more than ever. These skills are my bes
 
 ## Reference
 
-These split on one axis: who can invoke them. **User-invoked** skills are reachable only when you type them (e.g. `/grill-me`); their job is to orchestrate. **Model-invoked** skills can be invoked by you _or_ reached for automatically by the agent when the task fits; they hold the reusable discipline. A user-invoked skill may invoke model-invoked skills, but never another user-invoked one.
+These split on one axis: who can invoke them. **User-invoked** skills are reachable only when you type them (e.g. `/grill-me`, or `/skill:grill-me` in Pi); their job is to orchestrate. **Model-invoked** skills can be invoked by you _or_ reached for automatically by the agent when the task fits; they hold the reusable discipline. A user-invoked skill may invoke model-invoked skills, but never another user-invoked one.
 
 ### Engineering
 
@@ -264,7 +300,7 @@ Skills I use daily for code work.
 
 - **[prototype](./skills/engineering/prototype/SKILL.md)**: Build a throwaway prototype to answer a design question, either a single shareable HTML file for state/logic questions, or several radically different UI variations toggleable from one route.
 - **[diagnosing-bugs](./skills/engineering/diagnosing-bugs/SKILL.md)**: Disciplined diagnosis loop for hard bugs and performance regressions: build a feedback loop that goes red on this bug → minimise → hypothesise → instrument → fix → regression-test.
-- **[research](./skills/engineering/research/SKILL.md)**: Investigate a question against high-trust primary sources and capture the findings as a cited Markdown file in the repo, run as a background agent.
+- **[research](./skills/engineering/research/SKILL.md)**: Investigate a question against high-trust primary sources and capture the findings as a cited Markdown file in the repo, run as a single foreground subagent (this fork; upstream runs it as a background agent).
 - **[tdd](./skills/engineering/tdd/SKILL.md)**: Test-driven development with a red-green-refactor loop. Builds features or fixes bugs one vertical slice at a time.
 - **[domain-modeling](./skills/engineering/domain-modeling/SKILL.md)**: Actively build and sharpen a project's domain model: challenge terms against the glossary, stress-test with edge-case scenarios, and update `GLOSSARY.md` and ADRs inline.
 - **[codebase-design](./skills/engineering/codebase-design/SKILL.md)**: Shared discipline and vocabulary for designing deep modules: a lot of behaviour behind a small interface, placed at a clean seam, testable through that interface.
