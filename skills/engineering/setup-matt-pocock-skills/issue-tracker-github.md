@@ -18,6 +18,7 @@ Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all o
 - **Read an issue**: `gh issue view <number> -R <owner>/<repo> --json number,title,body,labels,comments`.
 - **List issues**: `gh issue list -R <owner>/<repo> --state open --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'` with appropriate `--label` and `--state` filters.
 - **Comment on an issue**: `gh issue comment <number> -R <owner>/<repo> --body "..."`
+- **Edit an issue body**: `gh issue edit <number> -R <owner>/<repo> --body-file <file>` (`-F`; `-` reads standard input). The body replaces **whole**, so treat it as an edit and not a rewrite: read the current body first (`gh issue view <n> -R <owner>/<repo> --json body`), change only the section you mean, and pass the whole amended body back. Never pass a body written from memory, and never drop a section you did not read. `--body` (the inline string) is for a body short enough to hold exactly; a multi-line body goes through a file, with a heredoc when you are writing that file in the shell.
 - **Apply / remove labels**: `gh issue edit <number> -R <owner>/<repo> --add-label "..."` / `--remove-label "..."`
 - **Close**: `gh issue close <number> -R <owner>/<repo> --comment "..."`
 - **Read the labels that exist**: `gh label list -R <owner>/<repo> --json name --jq '[.[].name]'`. Create only what the tracker lacks, and only once the user has approved it: `gh label create -R <owner>/<repo> <name> -c <6-hex>` (`gh label edit` recolours an existing one). Needs an account that can write; report the permission instead of trying when it cannot.
@@ -71,7 +72,7 @@ Used by `/wayfinder`. The **map** is a single issue with **child** issues as tic
   `--paginate` walks every page (the endpoint pages at 100). The endpoint returns only children, so the map issue itself can never enter the frontier — and never offer it as a ticket. Keep the returned order: it is the map's order, and the first survivor wins.
   Then drop each survivor that is still blocked, one gate per number: `gh api repos/<owner>/<repo>/issues/<child> --jq .issue_dependencies_summary.blocked_by` — drop the child when it is > 0. Where sub-issues aren't enabled, page the body convention instead: `gh api --paginate -X GET search/issues -f q='is:issue is:open repo:<owner>/<repo> "Part of #<map>" in:body'`, ordered by the map body's task list, and read the `Blocked by` line for the gate. The search API caps at 1000 results: if it hits the cap, say so and stop rather than assume the frontier is complete.
 - **Claim**: `gh issue edit <n> -R <owner>/<repo> --add-assignee @me`, the session's first write.
-- **Resolve**: `gh issue comment <n> -R <owner>/<repo> --body "<answer>"`, then `gh issue close <n> -R <owner>/<repo>`, then append a context pointer (gist + link) to the map's Decisions-so-far.
+- **Resolve**: `gh issue comment <n> -R <owner>/<repo> --body "<answer>"`, then `gh issue close <n> -R <owner>/<repo>`, then append a context pointer (gist + link) to the map's Decisions-so-far, using the **Edit an issue body** operation above so the rest of the map body survives unchanged.
 
 ## Capability validation
 

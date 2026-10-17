@@ -148,17 +148,20 @@ When the installer asks which skills to take, include `setup-matt-pocock-skills`
 
 Pi discovers skills by scanning its configured skill directories for folders that contain `SKILL.md`; it advertises each one's name, description and path, and loads the full instructions only when a task calls for them. Force a load with `/skill:<name>`.
 
-This fork carries a `pi.skills` manifest in `package.json` that selects the five skills the adapted Wayfinder flow needs:
+This fork carries a `pi.skills` manifest in `package.json` that selects the six skills the adapted Wayfinder flow needs:
 
 | Skill | Invocation in Pi |
 | --- | --- |
 | `setup-matt-pocock-skills` | user-invoked (`disable-model-invocation: true`) — type `/skill:setup-matt-pocock-skills` |
 | `wayfinder` | user-invoked — type `/skill:wayfinder` |
+| `to-spec` | user-invoked, type `/skill:to-spec`, with an optional map reference after it |
 | `grilling` | model-invoked — reached for when the task fits, or forced with `/skill:grilling` |
 | `domain-modeling` | model-invoked |
 | `research` | model-invoked |
 
-The two user-invoked skills are **not** in the agent's `<available_skills>` block, so no other skill and no agent can fire them. Everything in this fork that needs them says so in the docs, and the skills themselves say which command to name.
+The three user-invoked skills are **not** in the agent's `<available_skills>` block, so no other skill and no agent can fire them. Everything in this fork that needs them says so in the docs, and the skills themselves say which command to name.
+
+`to-spec` takes one optional argument: a reference to a **Wayfinder map** (issue number or URL). With a map it synthesises the decisions that earlier sessions settled, reading the map and its tickets' resolution comments; with none it synthesises the current conversation, which is upstream's behaviour. Where the spec lands is the map's call, not the skill's: a map whose **Destination** names a repository file path gets a committed spec at that exact path, and a map that names none publishes through the tracker. There is no default path and no repo-wide `docs/specs/` convention.
 
 The other skills in this repo are still upstream-only: they are present in the tree, documented as upstream behaviour, and not part of this fork's manifest.
 
@@ -289,7 +292,7 @@ Skills I use daily for code work.
 - **[triage](./skills/engineering/triage/SKILL.md)**: Move issues through a state machine of triage roles.
 - **[improve-codebase-architecture](./skills/engineering/improve-codebase-architecture/SKILL.md)**: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.
 - **[setup-matt-pocock-skills](./skills/engineering/setup-matt-pocock-skills/SKILL.md)**: Configure this repo for the engineering skills (issue tracker, triage labels, domain doc layout). Run once per repo before using the other engineering skills.
-- **[to-spec](./skills/engineering/to-spec/SKILL.md)**: Turn the current conversation into a spec and publish it to the issue tracker. No interview, just synthesizes what you've already discussed.
+- **[to-spec](./skills/engineering/to-spec/SKILL.md)**: Turn the current conversation, or a cleared Wayfinder map, into a spec and land it: a committed file where the map's Destination names one, otherwise the issue tracker. No interview, just synthesis of what you've already decided (this fork; upstream always publishes to the tracker).
 - **[to-tickets](./skills/engineering/to-tickets/SKILL.md)**: Break any plan, spec, or conversation into a set of tracer-bullet tickets, each declaring its blocking edges, written as text in a local file, or as native blocking links on a real tracker.
 - **[implement](./skills/engineering/implement/SKILL.md)**: Build the work described by a spec or set of tickets, driving `/tdd` at pre-agreed seams and closing out with `/code-review` before committing.
 - **[implement-spec](./skills/engineering/implement-spec/SKILL.md)**: Implement a whole spec on one integration branch. Works the tickets as a task graph, running implementer subagents across the ready frontier for maximum concurrency, then closes out with `/code-review`.
