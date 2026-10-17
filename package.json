@@ -14,7 +14,8 @@
       "./skills/productivity/grilling",
       "./skills/engineering/domain-modeling",
       "./skills/engineering/research",
-      "./skills/engineering/wayfinder"
+      "./skills/engineering/wayfinder",
+      "./skills/engineering/to-spec"
     ]
   },
   "scripts": {
