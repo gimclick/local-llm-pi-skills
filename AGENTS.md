@@ -22,10 +22,10 @@ Do not delete, rewrite, or trim `CLAUDE.md`: it is upstream's, and Claude plugin
 
 | Surface | Harness | Selects | Now |
 | --- | --- | --- | --- |
-| `package.json` → `pi.skills` | Pi | this fork's Pi skills | 11 |
+| `package.json` → `pi.skills` | Pi | this fork's Pi skills | 12 |
 | `.claude-plugin/plugin.json` → `skills` | Claude Code, and Codex/Copilot/VS Code reading the same manifests | the promoted set | 27 |
 
-They are independent lists. A skill in one is not in the other: Pi loads eleven, Claude ships 27, and the gap is deliberate, not drift. Changing one does not license changing the other, and a change in this fork does not add or remove Claude skills just to keep the lists aligned. Counts move only when a change deliberately registers or promotes a skill; name the list that changed in the changeset. [README.md](./README.md) lists the Pi set; the bucket READMEs and `README.md` list the promoted set.
+They are independent lists. A skill in one is not in the other: Pi loads twelve, Claude ships 27, and the gap is deliberate, not drift. Changing one does not license changing the other, and a change in this fork does not add or remove Claude skills just to keep the lists aligned. Counts move only when a change deliberately registers or promotes a skill; name the list that changed in the changeset. [README.md](./README.md) lists the Pi set; the bucket READMEs and `README.md` list the promoted set.
 
 ## Validation
 

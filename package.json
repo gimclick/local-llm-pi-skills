@@ -20,7 +20,8 @@
       "./skills/engineering/to-tickets",
       "./skills/engineering/tdd",
       "./skills/engineering/code-review",
-      "./skills/engineering/implement"
+      "./skills/engineering/implement",
+      "./skills/engineering/pr"
     ]
   },
   "scripts": {
