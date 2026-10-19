@@ -25,7 +25,8 @@
       "./skills/engineering/triage",
       "./skills/productivity/writing-for-agents",
       "./skills/engineering/retro",
-      "./skills/productivity/handoff"
+      "./skills/productivity/handoff",
+      "./skills/engineering/diagnosing-bugs"
     ]
   },
   "scripts": {
