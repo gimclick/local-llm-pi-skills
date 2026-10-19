@@ -23,7 +23,8 @@
       "./skills/engineering/implement",
       "./skills/engineering/pr",
       "./skills/engineering/triage",
-      "./skills/productivity/writing-for-agents"
+      "./skills/productivity/writing-for-agents",
+      "./skills/engineering/retro"
     ]
   },
   "scripts": {
