@@ -22,7 +22,8 @@
       "./skills/engineering/code-review",
       "./skills/engineering/implement",
       "./skills/engineering/pr",
-      "./skills/engineering/triage"
+      "./skills/engineering/triage",
+      "./skills/productivity/writing-for-agents"
     ]
   },
   "scripts": {
