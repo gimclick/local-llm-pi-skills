@@ -18,7 +18,8 @@
       "./skills/engineering/to-spec",
       "./skills/engineering/prototype",
       "./skills/engineering/to-tickets",
-      "./skills/engineering/tdd"
+      "./skills/engineering/tdd",
+      "./skills/engineering/code-review"
     ]
   },
   "scripts": {
