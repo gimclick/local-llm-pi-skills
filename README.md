@@ -57,11 +57,16 @@
 > one foreground `researcher` at a time, the project glossary was updated, and the cleared map was
 > published through `/skill:to-spec`. Those operations are confirmed on GitHub.
 >
-> **Still untested in this fork:** `prototype` (registered in the manifest, never exercised), `to-tickets`,
-> `implement`, `triage`, and every tracker backend other than GitHub (GitLab, local markdown, and the
-> "other" path). Treat those as upstream behaviour until a verification note in this repo says otherwise.
-> A skill in the manifest, and a skill that has run, are different claims: only an exercised operation
-> counts as evidence here.
+> **Still untested in this fork:** `to-tickets` (registered in the manifest, never run), `implement`,
+> `triage`, and every tracker backend other than GitHub (GitLab, local markdown, and the "other" path).
+> Treat those as upstream behaviour until a verification note in this repo says otherwise.
+>
+> **`prototype` is registered and partly exercised.** Two things have run: standalone `prototype`
+> logic generation (the self-contained HTML logic demo) and a `wayfinder` map's `prototype` ticket
+> producing its artifact on a throwaway branch. Three things have not: the human's verdict that
+> resolves such a ticket, the UI-variants branch, and whether either artifact was useful enough to
+> act on. A skill in the manifest, and a skill that has run, are different claims: only an exercised
+> operation counts as evidence here.
 >
 > **Upstream policy:** changes to `mattpocock/skills` are reviewed before being merged in.
 > Upstream history is never rewritten; our changes sit on top as separate commits.
@@ -158,7 +163,7 @@ When the installer asks which skills to take, include `setup-matt-pocock-skills`
 
 Pi discovers skills by scanning its configured skill directories for folders that contain `SKILL.md`; it advertises each one's name, description and path, and loads the full instructions only when a task calls for them. Force a load with `/skill:<name>`.
 
-This fork carries a `pi.skills` manifest in `package.json` that selects the seven skills the adapted Wayfinder flow needs:
+This fork carries a `pi.skills` manifest in `package.json` that selects the eight skills this fork loads: the adapted Wayfinder flow, and the ticket step that cuts a build from the spec that flow produces.
 
 | Skill | Invocation in Pi |
 | --- | --- |
@@ -169,14 +174,17 @@ This fork carries a `pi.skills` manifest in `package.json` that selects the seve
 | `domain-modeling` | model-invoked |
 | `research` | model-invoked |
 | `prototype` | model-invoked |
+| `to-tickets` | user-invoked, type `/skill:to-tickets`, with an optional spec file path or issue reference after it |
 
-The three user-invoked skills are **not** in the agent's `<available_skills>` block, so no other skill and no agent can fire them. Everything in this fork that needs them says so in the docs, and the skills themselves say which command to name.
+The four user-invoked skills are **not** in the agent's `<available_skills>` block, so no other skill and no agent can fire them. Everything in this fork that needs them says so in the docs, and the skills themselves say which command to name.
 
 `wayfinder` routes a ticket to whichever skill its type names, and checks that the skill is loaded before it reaches for it: a name in the agent's `<available_skills>` block for a model-invoked skill, Pi's resolved skill list for a user-invoked one. A skill sitting in this checkout but not loaded is reported on the ticket, which stays open, rather than worked with generic reasoning in place of the missing methodology. When the map clears, wayfinder hands off by naming the command: it tells the human to run `/skill:to-spec` with the map reference, and does not load that skill, close the map, or start the build.
 
 `prototype` is in the manifest, so a `wayfinder:prototype` ticket has a methodology to load: wayfinder reads its `SKILL.md` in the parent session and builds the artifact there, since the exchange needs the human present and no delegated agent can hold it. The artifact lands on a throwaway `prototype/<name>` branch, pushed with no PR and never merged, and the ticket carries a durable reference to it (branch, artifact path, commit identifier). The ticket stays open until the human gives a verdict on the artifact, and inside a map the prototype's code is never folded into production: the demonstration and the confirmed decision are what the map keeps. Standalone `prototype`, outside a map, keeps upstream's behaviour, including folding a validated result into the real code.
 
-`to-spec` takes one optional argument: a reference to a **Wayfinder map** (issue number or URL). With a map it synthesises the decisions that earlier sessions settled, reading the map and its tickets' resolution comments; with none it synthesises the current conversation, which is upstream's behaviour. Where the spec lands is the map's call, not the skill's: a map whose **Destination** names a repository file path gets a committed spec at that exact path, and a map that names none publishes through the tracker. There is no default path and no repo-wide `docs/specs/` convention.
+`to-tickets` is registered as the eighth skill, and it is user-invoked: type `/skill:to-tickets`, with an optional repository-relative spec path or issue reference after it. Its upstream methodology is preserved: codebase exploration and prefactoring, small independently verifiable vertical slices, dependency analysis, expand/contract sequencing for wide refactors, the human quiz and approval before anything is published, blockers-first publication, and the local markdown tracker's one-file-per-ticket layout. What this fork adds is traceability, not new behaviour. When the source is a committed spec file, the skill reads that file from the repository, names the commit that holds the authoritative version, and reports whether the working copy differs from it; it does not build tickets from uncommitted changes or conversation memory, and it stops to ask which source is authoritative before publishing when the source is ambiguous. Each ticket cites the spec it was cut from (repository-relative path plus a commit-pinned permalink) and names the acceptance criteria and fixture identifiers it owns, so a fresh session can pick it up without the whole spec. Every required acceptance fixture gets one primary owner, or is recorded as already passing; a later ticket may reference an earlier fixture for regression coverage, which is not a second implementation deliverable.
+
+Parentage follows the source. A spec committed as a Markdown file yields **standalone** implementation issues: no issue is opened to duplicate the spec, and implementation tickets are never attached to a `wayfinder:map` issue, whose children stay decision tickets. An implementation umbrella issue is allowed only when the user approves one, and it is never created automatically. An existing source issue keeps upstream's sub-issue behaviour. Labels are conditional: `ready-for-agent` is applied only when the configured triage-label document maps that role and the label already exists, and when it does not the skill reports that and publishes without it, so an unavailable label cannot fail a publication. Nothing is delegated, and independent tickets do not imply parallel execution: the skill publishes an artifact, and the work is one focused fresh session at a time, in dependency order. `implement` and `implement-spec` stay out of this fork's manifest.
 
 The other skills in this repo are still upstream-only: they are present in the tree, documented as upstream behaviour, and not part of this fork's manifest.
 

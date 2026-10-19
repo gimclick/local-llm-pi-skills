@@ -38,7 +38,10 @@ Sub-issue linking and native blocking belong to the tracker, not to wayfinding a
 
 - A `wayfinder:map` issue's children are **decision tickets**: questions whose answer is a decision. That is the whole membership of the map, and nothing else gets to join it.
 - An **implementation ticket** is a child of the **spec it was cut from**, never of the Wayfinder map that spec was synthesised from. The map is the spec's origin, so cite and link it from the spec or the ticket body; do not re-parent. A build slice filed under the map reads as a decision the map made, and the map's Decisions-so-far would then claim the route walked through work it never took.
-- Where the spec landed as a committed file rather than an issue, there is no issue to file implementation tickets under. That question is open, and this doc records it without deciding it.
+- Where the spec landed as a **committed file** rather than an issue, implementation tickets are **standalone issues**: there is no issue to file them under. Do not open one to hold them, and do not open one to duplicate the spec: the file is the spec, and a second copy on the tracker is a second document to keep in sync. Cite it from each ticket body with the repository-relative path plus a commit-pinned permalink to the version cut from.
+- Never attach an implementation ticket to a `wayfinder:map` issue. The map's children are decision tickets only, and a build slice filed under the map reads as a decision the map made, so its Decisions-so-far would claim a route it never walked. The map is the spec's origin: cite and link it from the spec or the ticket body, do not re-parent.
+- A separate **implementation umbrella** issue is allowed only when the user has explicitly approved it, and is never created automatically. When approved, it holds the tickets and names which spec file is canonical.
+- Where the source was an **existing issue**, its tickets are children of it, as above. The one exception is a Wayfinder decision map, which never takes an implementation child.
 
 ## Pull requests as a triage surface
 
