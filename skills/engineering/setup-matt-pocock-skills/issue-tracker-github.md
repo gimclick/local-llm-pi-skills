@@ -34,6 +34,12 @@ Sub-issue linking and native blocking belong to the tracker, not to wayfinding a
 - **The exact gate**: `gh api repos/<owner>/<repo>/issues/<n> --jq .issue_dependencies_summary.blocked_by` — open blockers only, `0` means startable (`total_blocked_by` beside it is the all-edges count, closed included). Prefer this over counting `--json` nodes: `gh`'s selection is capped at 50 nodes (`first:50`), so when `totalCount > 50` the `nodes` array is truncated and the OPEN filter silently undercounts. Guard with `(nodes | length) >= totalCount`; when that fails, read the gate from `issue_dependencies_summary` or page the edges with `gh api --paginate "repos/<owner>/<repo>/issues/<n>/dependencies/blocked_by"`.
 - A ticket is unblocked when every blocker is closed.
 
+**Parentage is not one rule for every ticket.** The parent says what kind of ticket the child is:
+
+- A `wayfinder:map` issue's children are **decision tickets**: questions whose answer is a decision. That is the whole membership of the map, and nothing else gets to join it.
+- An **implementation ticket** is a child of the **spec it was cut from**, never of the Wayfinder map that spec was synthesised from. The map is the spec's origin, so cite and link it from the spec or the ticket body; do not re-parent. A build slice filed under the map reads as a decision the map made, and the map's Decisions-so-far would then claim the route walked through work it never took.
+- Where the spec landed as a committed file rather than an issue, there is no issue to file implementation tickets under. That question is open, and this doc records it without deciding it.
+
 ## Pull requests as a triage surface
 
 **PRs as a request surface: no.** _(Set to `yes` if this repo treats external PRs as feature requests; `/triage` reads this flag.)_
@@ -59,7 +65,7 @@ Read it as in **Read an issue** above.
 Used by `/wayfinder`. The **map** is a single issue with **child** issues as tickets; the **Sub-issue** and **Blocking edge** operations above are the ones it uses, with the map as parent.
 
 - **Map**: a single issue labelled `wayfinder:map`, holding the Notes / Decisions-so-far / Fog body. `gh issue create -R <owner>/<repo> --label wayfinder:map`.
-- **Child ticket**: an issue linked to the map as a GitHub sub-issue (see **Sub-issue** above). Where sub-issues aren't enabled, add the child to a task list in the map body and put `Part of #<map>` at the top of the child body. Labels: `wayfinder:<type>` (`research`/`prototype`/`grilling`/`task`). Once claimed, the ticket is assigned to the driving dev.
+- **Child ticket**: an issue linked to the map as a GitHub sub-issue (see **Sub-issue** above). Only **decision tickets** belong here; the map never takes an implementation child (see **Parentage** above). Where sub-issues aren't enabled, add the child to a task list in the map body and put `Part of #<map>` at the top of the child body. Labels: `wayfinder:<type>` (`research`/`prototype`/`grilling`/`task`). Once claimed, the ticket is assigned to the driving dev.
 - **Blocking**: GitHub's **native issue dependencies**, the canonical, UI-visible representation — the **Blocking edge** operation above, applied to map children. `blockedBy` is **not** the live gate: it lists every edge, closed blockers included, and `blockedBy.totalCount` counts them all. The gate is the open-only count — `[.blockedBy.nodes[] | select(.state == "OPEN")] | length`, or `issue_dependencies_summary.blocked_by` from `gh api` — and a ticket is blocked while that is ≥ 1. Where dependencies aren't available, fall back to the `Blocked by: #<n>, #<n>` body line. A ticket is unblocked when every blocker is closed; the closed edges stay in place.
 - **Frontier query**: the candidates are **this map's children only**. Never a bare `gh issue list` — it returns the repo's open issues, map and unrelated issues alike, and stops at its `--limit` default of 30 with no `--paginate`, so it silently drops children. Retrieve the children, then filter:
 
@@ -77,3 +83,11 @@ Used by `/wayfinder`. The **map** is a single issue with **child** issues as tic
 ## Capability validation
 
 GitHub offers no switch to ask whether sub-issues or native blocking are on for a repo — both are validated by doing. Validate against a real issue: `gh issue view <n> -R <owner>/<repo> --json parent,subIssues,blockedBy` returns `{nodes: [], totalCount: 0}` when the field is supported and errors (401/404/451, or a "repository has disabled issues" message) when the repo or account cannot do it. A repo with no issues yet cannot be preflighted at all without creating a test issue; record the capability as **unverified** and let the fallbacks above carry it until the first real ticket proves it.
+
+### Clearing a capability marker
+
+A marker is a placeholder for an observation, and a real operation replaces it. When one succeeds, that capability is no longer unverified:
+
+- **What counts as proof:** the operation ran against a real issue and produced its effect, not merely an empty field. Creating a child and seeing it in the parent's `subIssues`, adding a blocking edge and reading it back in `blockedBy` or `blocking`, taking the live gate from `issue_dependencies_summary`, publishing a map child, closing a ticket with its resolution comment.
+- **How to record it:** in the **unverified** note for that capability, replace the marker with what was seen: the command, the issue it ran against, and the field that came back. Keep the note naming the capability, so a reader can still tell which operation the observation covers.
+- **Clear one marker at a time.** Every other warning, fallback, and gate in this file stays put: a capability proven on this repo is not proven on the next one, and the fallbacks are what carry an unproven repo. An operation that errors proves nothing; record the error and leave the marker in place.

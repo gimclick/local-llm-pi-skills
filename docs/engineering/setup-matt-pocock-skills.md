@@ -1,4 +1,4 @@
-> **This fork (Pi adaptation):** this skill is user-invoked — type `/skill:setup-matt-pocock-skills`; no agent can fire it. Its GitHub tracker template is adapted (explicit target repo, capability checks, gated label writes) and **has not passed an end-to-end live test**. The shared runtime contract is in [the README](../../README.md).
+> **This fork (Pi adaptation):** this skill is user-invoked — type `/skill:setup-matt-pocock-skills`; no agent can fire it. Its GitHub tracker template is adapted (explicit target repo, capability checks, gated label writes) and **has been exercised end to end on GitHub**: tracker setup, labels, map children published as native sub-issues, blocking edges read back, a ticket resolved and closed, and publication of the cleared map through `/skill:to-spec` all ran. Other tracker backends remain untested. The shared runtime contract is in [the README](../../README.md).
 
 ## What it does
 
@@ -25,7 +25,7 @@ It writes into the repo you run it in:
 | `triage-labels.md` | `docs/agents/`, only when the `triage` skill is installed |
 | An `## Agent skills` block | whichever of `CLAUDE.md` or `AGENTS.md` already exists |
 
-In this fork, `issue-tracker.md` also carries a **Target repository** line (`owner/repo`) that you confirm during setup, and any capability the setup could not check is marked **unverified** in the file. Downstream skills pass the target as `-R` instead of re-inferring it from the remotes.
+In this fork, `issue-tracker.md` also carries a **Target repository** line (`owner/repo`) that you confirm during setup, and any capability the setup could not check is marked **unverified** in the file. That marker is a placeholder for an observation: when a real operation proves the capability on this repo, the file records the command and what it returned in place of the marker, one capability at a time, and the other warnings and fallbacks stay put. Downstream skills pass the target as `-R` instead of re-inferring it from the remotes.
 
 You commit all of it as markdown. There is no user-level or global mode. The config lives in the repo, so every repo gets its own copy.
 
@@ -80,6 +80,10 @@ Upstream it doesn't. `docs/agents/triage-labels.md` is a *mapping*: it tells `/t
 
 One more fork-only gate: with more than one GitHub remote, it asks before running `gh repo set-default <owner>/<repo>`, because that pins the target in `.git/config` — a change to the clone, not just a note in the docs.
 
+**GitHub sub-issues and blocking came out marked unverified. Do I re-run setup to clear that?**
+
+No. GitHub has no switch that reports whether sub-issues or native blocking are on for a repo, and no preflight that avoids touching a real issue, so setup records the honest state instead of guessing. The marker clears the first time a real operation proves the capability on that repo: the operation, the issue it ran against, and the field that came back are written into `docs/agents/issue-tracker.md` in place of that marker, one capability at a time, with the file's other warnings and fallbacks left intact. An operation that errors proves nothing and leaves the marker in place. Re-run setup only to switch trackers or start over.
+
 **Can I configure the other skills' behaviour here ([grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) cadence, question format, tone)?**
 
 No. It configures the tracker, the label vocabularies (triage, and Wayfinder's in this fork), and the doc layout — plus the target repository the tracker writes into. Users have asked to make it the place for per-user preferences. The answer is that skills stay opinionated and take no per-user config. Preferences belong in your `CLAUDE.md` as plain instructions, which every skill already reads.
@@ -97,7 +101,7 @@ One long-standing complaint says yes, in these words: *"having a skill to set up
 - `docs/agents/issue-tracker.md` and `docs/agents/domain.md` exist, plus `triage-labels.md` if `triage` is installed.
 - An `## Agent skills` section appears in the instruction file your harness reads, with a one-line summary pointing at each of those files.
 - The tracker it proposed matches the remote you use, its **Target repository** line names the `owner/repo` you confirmed, and the label strings match labels that exist in your tracker.
-- Any capability setup could not check — GitHub sub-issues and native blocking have no preflight that avoids touching a real issue — is marked **unverified** in the file, not assumed to work.
+- Any capability setup could not check (GitHub sub-issues and native blocking have no preflight that avoids touching a real issue) is marked **unverified** in the file, not assumed to work, and becomes a recorded observation the first time a real operation proves it.
 - Afterwards, `/to-tickets` publishes without asking you where issues live, and `/triage` applies labels rather than inventing them.
 - Nothing in the skill files themselves changed. If setup edited a `SKILL.md`, something went wrong.
 

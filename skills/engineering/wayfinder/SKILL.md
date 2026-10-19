@@ -10,7 +10,7 @@ The destination varies per effort, and naming it is the first act of charting: i
 
 ## Plan, don't do
 
-Wayfinder is **planning** by default: each ticket resolves a decision, and the map is done when the way is clear, with nothing left to decide before someone goes and does the thing. The pull to just do the work is usually the signal you've reached the edge of the map and it's time to hand off. An effort can override this in its **Notes**, carrying execution into the map itself, but absent that, produce decisions, not deliverables.
+Wayfinder is **planning** by default: each ticket resolves a decision, and the map is done when the way is clear, with nothing left to decide before someone goes and does the thing. The pull to just do the work is usually the signal you've reached the edge of the map and it's time to hand off. That hand-off is a command for the human, not a step for you: see [Hand off a cleared map](#hand-off-a-cleared-map). An effort can override this in its **Notes**, carrying execution into the map itself, but absent that, produce decisions, not deliverables.
 
 ## Refer by name
 
@@ -19,6 +19,15 @@ Every map and ticket is an issue, so it has a **name**: its title. In everything
 ## Load skills by name
 
 Pi has no Skill tool. Another skill is loaded by reading its `SKILL.md`: the skills you can reach are listed by name, description, and path in your `<available_skills>` block, and "load the `grilling` skill" below means read that path and follow it. A user-invoked skill (`setup-matt-pocock-skills`, and `wayfinder` itself) is absent from that block, so no agent can load it: only the human can, by typing `/skill:<name>`.
+
+### Check it is loaded before you reach for it
+
+A ticket type names the skill that carries its methodology, and that skill may not be loaded in this run. The repo checkout holds skill folders the package manifest never enabled, so a folder on disk is not evidence, and neither is a count of what you expect to find. Check at the point of use, not on every map load or ticket listing: the check belongs to the moment a ticket's type or the map's **Notes** names a skill you are about to work. Take the answer from Pi itself:
+
+- **Model-invoked skill** (`grilling`, `domain-modeling`, `prototype`): the answer is your `<available_skills>` block. The skill is reachable when its name appears there.
+- **User-invoked skill** (`to-spec`, `to-tickets`, `implement`, `triage`, `setup-matt-pocock-skills`): absent from that block whether installed or not, so the block is never the answer. Ask the human which skills they installed, or run the resolved-skill listing `/skill:setup-matt-pocock-skills` describes (one `get_commands` record through `pi --mode rpc`), which reports enabled-but-hidden skills too.
+
+When a skill a ticket needs is **not loaded**, report the limitation and stop; do not improvise the methodology with generic reasoning in its place. Post one comment on the ticket naming the missing skill and what would have been done (`prototype` is not loaded in this run, so nothing was prototyped), leave the ticket **open and unresolved**, and do not append it to the map's Decisions-so-far: an improvised resolution reads as settled and drops the methodology the map was charted to keep. Tell the human which skill to install before naming the ticket takeable again.
 
 ## The Map
 
@@ -91,6 +100,7 @@ Research is the only ticket type a session hands off, and this setup runs **one 
 - **The child only gathers.** It receives the question, its scope, and what the decision is waiting on; it returns a cited brief to the parent. It opens no issue, posts no comment, commits nothing, and spawns nothing.
 - **The parent owns everything durable**: the GitHub Issue, the resolution comment, the commit, and the persistent findings file. Write the brief the child returned where this repo keeps research notes, link it from the ticket, and keep the map an index.
 - **Fit the session, not the ticket.** Resolve only the research this session can carry. When a `research` ticket is too big, still blocked, or simply not next, leave it open and unclaimed: an unresolved Wayfinder research ticket for a future session, never a half-done read closed as resolved.
+- **One slot governs inference this session starts.** Independent sessions the human runs are not fan-out: each has its own inference slot, and concurrent edits to the tracker are expected. What is never allowed is this session putting a second delegated run on the wire while one is still running, or backgrounding one to keep working beside it. The constraint is on agent-managed concurrency, not on the human's sessions.
 - **Evidence, not recollection.** A research ticket resolves on claims each tied to a source. A brief with no citations, or one that leaves the question unanswered, does not resolve it; record contradictions and missing evidence on the ticket rather than smoothing them over.
 
 ## Fog of war
@@ -116,7 +126,7 @@ Ruling something out of scope is a scoping act, not a step on the route. When a 
 
 ## Invocation
 
-Two modes. Either way, **never resolve more than one ticket per session**, with the exception of research tickets.
+Two modes. Either way, **never resolve more than one ticket per session**, with the exception of research tickets, and neither mode ends by building: see [Hand off a cleared map](#hand-off-a-cleared-map).
 
 ### Chart the map
 
@@ -139,4 +149,18 @@ User invokes with a map (URL or number). A ticket is **optional**: without one, 
 4. Record the resolution: post the answer as a **resolution comment**, **close** the issue, and **append a context pointer** to the map's Decisions-so-far.
 5. Add newly-surfaced tickets (create-then-wire); graduate any fog the answer has made specifiable, clearing each graduated patch from **Not yet specified** so it lives only as its new ticket. If the answer reveals that a ticket (this one or another) sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update or delete those tickets.
 
-The user may run unblocked tickets in parallel, so expect other sessions to be editing the tracker concurrently.
+The human may run unblocked tickets in parallel, in independent sessions each with its own inference slot, so expect other sessions to be editing the tracker concurrently. That is not licence to overlap work this session starts: the one-slot rule in [Research delegation](#research-delegation) still binds here.
+
+### Hand off a cleared map
+
+A map is **cleared** only when all three hold:
+
+- The **Destination** names what the map was finding its way to, so the destination has been established.
+- **Not yet specified** is empty: fog still written on the page is work the map has not made specifiable, so the way is not clear.
+- No **unresolved decision child ticket** remains, blocked or unblocked. An open ticket that is still blocked is an open decision: the frontier is closed, the map is not. Name the outstanding ticket and stop without handing off.
+
+When all three hold, the map is done. **Tell the human to run `/skill:to-spec` with the map reference** (`/skill:to-spec <map URL or number>`), the skill that collapses the settled decisions into the spec the map's **Destination** names. Then stop.
+
+- **Do not load `to-spec` yourself**, and do not restate its steps: it is user-invoked, so no agent can reach it, and the human's command is the hand-off.
+- **Do not close the map.** A cleared map is still open itself; closing it is not part of the hand-off, and the spec links back to it.
+- **Do not begin implementation from this session.** The map is an index of decisions, not a build plan; the build belongs to the spec and the tickets cut from it. An effort whose **Notes** carry execution into the map is the exception, and it says so in the Notes.
