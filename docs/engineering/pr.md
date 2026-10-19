@@ -1,3 +1,5 @@
+> **This fork (Pi adaptation):** `pr` is model-invoked and **registered in this fork's Pi manifest** as the twelfth skill, so Pi advertises it by name, description and path in the agent's `<available_skills>` block and loads it by reading its `SKILL.md` (Pi has no Skill tool); force it with `/skill:pr`. The body template, the six Summary views and the smallest-useful-view rule, the before/after evidence tiers, and the one-way or two-way door and blast-radius vocabulary are upstream's, as is the `GLOSSARY.md` line that asks for the repo's own words. What this fork adds is input authority, not a workflow: the draft names the pinned commit range it describes rather than a moving branch name, quotes evidence the session actually has, keeps observed output apart from claims and assumptions, includes every commit inside the range with post-review corrections labelled as a delta, and reports a door or a blast radius as unverified where nothing checked it. It writes the body and nothing else: no push, no pull request opened or edited, no commit, no issue touched, which is what keeps [implement](https://aihero.dev/skills-implement)'s stopping boundary intact and leaves publication to a separately authorized action. It is **Implemented** in the README's maturity categories: registered and adapted here, but no PR body has been drafted with it yet, so no claim of a exercised drafting run is made. The shared runtime contract, including the maturity categories, is in [the README](../../README.md).
+
 ## What it does
 
 `pr` defines the shape of a pull request body: a **Summary** that shows the change, **Evidence** that it works, and a **Merge Danger** call on how risky it is to land. It is a format reference, not a workflow. It does not push a branch, open the PR, or decide what goes into it. It tells the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) what the body should look like when it writes one.
@@ -6,7 +8,7 @@ The summary is a visual, not a paragraph. A default PR body describes the diff i
 
 ## When to reach for it
 
-Type `/pr`, or the agent reaches for it automatically whenever it is writing a PR body.
+Type `/skill:pr` in Pi (upstream harnesses type `/pr`), or the agent reaches for it automatically whenever it is writing a PR body.
 
 | Your situation | Reach for |
 | --- | --- |
@@ -45,6 +47,8 @@ Neither, by default. `pr` has its own template and does not look for `.github/pu
 **Is the output HTML? Why doesn't the Mermaid diagram render?**
 
 The output is a markdown PR body, not an HTML page. GitHub and GitLab render Mermaid blocks in a PR description, but a terminal does not, so the diagram looks like raw text while the agent is still showing it to you locally. Users on CLI harnesses have worked around that with an ASCII Mermaid renderer or by having the agent attach an HTML version to the PR. Mermaid is one of six views. A call tree, file tree or shaped diff reads the same everywhere.
+
+In Pi the same holds: the draft is markdown text in the terminal until someone posts it, and nothing in this fork renders Mermaid for you. A call tree, file tree, or shaped diff is the safest view here, and the skill's own rule to pick the smallest useful one usually lands on one of them.
 
 **Can it sort through the review comments that come back?**
 
