@@ -56,7 +56,7 @@
 > - **Implemented**: a skill adapted and registered for Pi, but not yet exercised in a representative runtime workflow.
 > - **Validated**: a skill adapted and registered for Pi that has been exercised successfully in at least one representative runtime workflow.
 >
-> Validated does not mean exhaustively tested, free of bugs, or that every optional path has been exercised. The category of each of the eleven Pi skills is shown in the skill table under Installation; every skill in this checkout that is not in `package.json` → `pi.skills` is **Not Implemented** for Pi.
+> Validated does not mean exhaustively tested, free of bugs, or that every optional path has been exercised. The category of each of the eleven Pi skills is shown in the [Pi skill status and invocation table](#pi-skill-status) under Installation; every skill in this checkout that is not in `package.json` → `pi.skills` is **Not Implemented** for Pi.
 >
 > **Known limitation:** only the GitHub issue-tracker backend has been exercised here. GitLab, local markdown, and any other tracker follow upstream behaviour until exercised.
 >
@@ -150,7 +150,9 @@ When the installer asks which skills to take, include `setup-matt-pocock-skills`
 
 </details>
 
-<details>
+<a id="pi-skill-status"></a>
+
+<details open>
 <summary><strong>Pi</strong> (this fork's target)</summary>
 
 Pi discovers skills by scanning its configured skill directories for folders that contain `SKILL.md`; it advertises each one's name, description and path, and loads the full instructions only when a task calls for them. Force a load with `/skill:<name>`.
