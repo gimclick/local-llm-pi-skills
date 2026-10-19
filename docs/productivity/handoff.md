@@ -1,3 +1,5 @@
+> **This fork (Pi adaptation):** handoff is user-invoked here: type `/skill:handoff`, and no agent can reach for it. Its suggested-skills section names only skills the receiving harness actually has, and writes the instruction that harness can act on: Claude calls its Skill tool, Pi reads a model-invoked skill's `SKILL.md` from its `<available_skills>` block, and a Pi user-invoked skill is written as a command for the human to type. The document still goes to the OS temp directory, outside the project. The shared runtime contract is in [the README](../../README.md).
+
 ## What it does
 
 `handoff` compacts the conversation you are in into a **handoff document**: one markdown file, written to your OS's temporary directory rather than into the workspace, that a fresh [agent](https://www.aihero.dev/ai-coding-dictionary/agent) can read to pick the work up.
@@ -6,7 +8,7 @@ What it gives you is **portability**, not compression, so the skill is narrower 
 
 ## When to reach for it
 
-You invoke this by typing `/handoff`; the agent won't reach for it on its own. Pass a note about what the next session is for, and the skill writes the document for that purpose.
+You invoke this by typing `/handoff` (Claude Code) or `/skill:handoff` (Pi); the agent won't reach for it on its own. Pass a note about what the next session is for, and the skill writes the document for that purpose.
 
 There are four triggers, and only four:
 
@@ -29,7 +31,7 @@ Three of the five options at a phase boundary preserve different things: `/compa
 
 ## What travels, and what doesn't
 
-The document carries the live thread (what's in flight, why, and what's next) plus a **suggested skills** section naming what the next agent should reach for. The skill redacts secrets before it writes the file.
+The document carries the live thread (what's in flight, why, and what's next) plus a **suggested skills** section naming what the next agent should reach for, written as an instruction that harness can act on. The skill redacts secrets before it writes the file.
 
 It deliberately does not carry anything already written down. The document references specs, plans, ADRs, issues, commits and diffs by path or URL, and never copies them. That keeps the file small, and it keeps the settled detail in one place instead of two copies that drift apart.
 
