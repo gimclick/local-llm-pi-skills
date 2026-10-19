@@ -24,7 +24,8 @@
       "./skills/engineering/pr",
       "./skills/engineering/triage",
       "./skills/productivity/writing-for-agents",
-      "./skills/engineering/retro"
+      "./skills/engineering/retro",
+      "./skills/productivity/handoff"
     ]
   },
   "scripts": {
