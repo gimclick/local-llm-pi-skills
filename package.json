@@ -16,7 +16,8 @@
       "./skills/engineering/research",
       "./skills/engineering/wayfinder",
       "./skills/engineering/to-spec",
-      "./skills/engineering/prototype"
+      "./skills/engineering/prototype",
+      "./skills/engineering/to-tickets"
     ]
   },
   "scripts": {
