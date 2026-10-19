@@ -1,3 +1,5 @@
+> **This fork (Pi adaptation):** `tdd` is model-invoked and **registered in this fork's Pi manifest** as the ninth skill, so Pi advertises it by name, description and path in the agent's `<available_skills>` block and loads it by reading its `SKILL.md` (Pi has no Skill tool); force it with `/skill:tdd`. One instruction is adapted: where upstream calls the Claude Skill tool for `codebase-design`, the skill reads `skills/engineering/codebase-design/SKILL.md` in this checkout as vocabulary, and reports when that file is absent rather than improvising a methodology. `codebase-design` is not registered here, so it is vocabulary to consult, not a skill to launch, and its `DESIGN-IT-TWICE.md` parallel-subagent pattern is out of scope. The methodology is upstream's: public seams, the seam-confirmation gate, vertical slices, red → green, boundary-only mocking, and refactoring left to `code-review`. It is registered, not run: no red → green cycle has been exercised in this fork. The shared runtime contract is in [the README](../../README.md).
+
 ## What it does
 
 `tdd` builds a feature or fixes a bug test-first: one failing test, then just enough code to pass it, then the next behaviour. It carries the standards that make that loop produce tests worth keeping: what a good test is, where tests go, what mocks are for, and the three anti-patterns that make a suite worthless.
@@ -6,7 +8,7 @@ It writes no test at a seam you have not agreed to first. Before any test exists
 
 ## When to reach for it
 
-Type `/tdd`, or the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reaches for it automatically when a task fits: building a feature or fixing a bug test-first, or when you say "red-green-refactor".
+Type `/skill:tdd` in Pi (upstream harnesses type `/tdd`), or the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reaches for it automatically when a task fits: building a feature or fixing a bug test-first, or when you say "red-green-refactor". It is model-invoked, so it is in the agent's `<available_skills>` block and needs no human command to be reachable.
 
 Reach for it when there is a concrete behaviour to build, with an input and an observable output, and you want tests that survive a refactor.
 
@@ -22,7 +24,7 @@ That last row is a real gap. The skill decides *where* the seams go, but nothing
 
 ## Prerequisites
 
-[codebase-design](https://aihero.dev/skills-codebase-design) needs to be installed. `tdd` used to carry its own deep-module and interface-design notes; v1.0 deleted them in favour of the shared skill, and `tdd` now uses its interface-design vocabulary. Nothing else; the skill is [stateless](https://www.aihero.dev/ai-coding-dictionary/stateless) and writes no files of its own.
+Nothing has to be installed. Upstream's page says `codebase-design` needs to be installed, and that claim is wrong in this fork: `codebase-design` is not in `pi.skills`, so Pi never loads it as a skill. The one place `tdd` reaches for it is conditional, when the shape of an interface is genuinely in question, and there it reads `skills/engineering/codebase-design/SKILL.md` in this checkout for the module, interface, depth, seam, adapter, leverage and locality terms. The file is present in the tree as upstream material; when it is missing the skill reports that and keeps working with `tdd`'s own seam guidance, and it never launches the skill or follows its `DESIGN-IT-TWICE.md` parallel-subagent pattern. Upstream's `tdd` did delete its own deep-module notes in v1.0 in favour of that shared vocabulary, and [tests.md](../../skills/engineering/tdd/tests.md) and [mocking.md](../../skills/engineering/tdd/mocking.md) still travel in the skill folder. Nothing else; the skill is [stateless](https://www.aihero.dev/ai-coding-dictionary/stateless) and writes no files of its own.
 
 ## The loop, and the seam it runs at
 

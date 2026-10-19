@@ -57,8 +57,8 @@
 > one foreground `researcher` at a time, the project glossary was updated, and the cleared map was
 > published through `/skill:to-spec`. Those operations are confirmed on GitHub.
 >
-> **Still untested in this fork:** `to-tickets` (registered in the manifest, never run), `implement`,
-> `triage`, and every tracker backend other than GitHub (GitLab, local markdown, and the "other" path).
+> **Still untested in this fork:** `to-tickets` and `tdd` (both registered in the manifest, never run),
+> `implement`, `triage`, and every tracker backend other than GitHub (GitLab, local markdown, and the "other" path).
 > Treat those as upstream behaviour until a verification note in this repo says otherwise.
 >
 > **`prototype` is registered and partly exercised.** Two things have run: standalone `prototype`
@@ -163,7 +163,7 @@ When the installer asks which skills to take, include `setup-matt-pocock-skills`
 
 Pi discovers skills by scanning its configured skill directories for folders that contain `SKILL.md`; it advertises each one's name, description and path, and loads the full instructions only when a task calls for them. Force a load with `/skill:<name>`.
 
-This fork carries a `pi.skills` manifest in `package.json` that selects the eight skills this fork loads: the adapted Wayfinder flow, and the ticket step that cuts a build from the spec that flow produces.
+This fork carries a `pi.skills` manifest in `package.json` that selects the nine skills this fork loads: the adapted Wayfinder flow, the ticket step that cuts a build from the spec that flow produces, and the red → green reference that build runs against.
 
 | Skill | Invocation in Pi |
 | --- | --- |
@@ -174,6 +174,7 @@ This fork carries a `pi.skills` manifest in `package.json` that selects the eigh
 | `domain-modeling` | model-invoked |
 | `research` | model-invoked |
 | `prototype` | model-invoked |
+| `tdd` | model-invoked |
 | `to-tickets` | user-invoked, type `/skill:to-tickets`, with an optional spec file path or issue reference after it |
 
 The four user-invoked skills are **not** in the agent's `<available_skills>` block, so no other skill and no agent can fire them. Everything in this fork that needs them says so in the docs, and the skills themselves say which command to name.
@@ -185,6 +186,8 @@ The four user-invoked skills are **not** in the agent's `<available_skills>` blo
 `to-tickets` is registered as the eighth skill, and it is user-invoked: type `/skill:to-tickets`, with an optional repository-relative spec path or issue reference after it. Its upstream methodology is preserved: codebase exploration and prefactoring, small independently verifiable vertical slices, dependency analysis, expand/contract sequencing for wide refactors, the human quiz and approval before anything is published, blockers-first publication, and the local markdown tracker's one-file-per-ticket layout. What this fork adds is traceability, not new behaviour. When the source is a committed spec file, the skill reads that file from the repository, names the commit that holds the authoritative version, and reports whether the working copy differs from it; it does not build tickets from uncommitted changes or conversation memory, and it stops to ask which source is authoritative before publishing when the source is ambiguous. Each ticket cites the spec it was cut from (repository-relative path plus a commit-pinned permalink) and names the acceptance criteria and fixture identifiers it owns, so a fresh session can pick it up without the whole spec. Every required acceptance fixture gets one primary owner, or is recorded as already passing; a later ticket may reference an earlier fixture for regression coverage, which is not a second implementation deliverable.
 
 Parentage follows the source. A spec committed as a Markdown file yields **standalone** implementation issues: no issue is opened to duplicate the spec, and implementation tickets are never attached to a `wayfinder:map` issue, whose children stay decision tickets. An implementation umbrella issue is allowed only when the user approves one, and it is never created automatically. An existing source issue keeps upstream's sub-issue behaviour. Labels are conditional: `ready-for-agent` is applied only when the configured triage-label document maps that role and the label already exists, and when it does not the skill reports that and publishes without it, so an unavailable label cannot fail a publication. Nothing is delegated, and independent tickets do not imply parallel execution: the skill publishes an artifact, and the work is one focused fresh session at a time, in dependency order. `implement` and `implement-spec` stay out of this fork's manifest.
+
+`tdd` is registered as the ninth skill and stays model-invoked: it sits in the agent's `<available_skills>` block, so Pi loads it by reading its `SKILL.md`, and the human can force it with `/skill:tdd`. Its methodology is upstream's, unchanged: public test seams, the seam-confirmation gate, vertical slices, red → green, no coupling to internals, mocking only at system boundaries, and refactoring kept out of the loop (it belongs to `code-review`, which this fork does not register). One instruction is adapted: where upstream calls the Claude Skill tool for `codebase-design`, the skill reads `skills/engineering/codebase-design/SKILL.md` in the checkout as vocabulary, only when an interface's shape is genuinely in question. `codebase-design` stays out of the manifest, so it is never a skill to launch, and its `DESIGN-IT-TWICE.md` parallel-subagent pattern is out of scope here; when the file is absent the skill reports that and keeps working with its own seam guidance. Two clarifications were added to the same file: a seam already recorded as human-approved is reused without re-asking, while an inferred one still needs the human's answer (acceptance criteria name behaviour, not seams, so they are never approval on their own), and expected values come from acceptance criteria and a commit-pinned spec rather than from what the implementation returns. `tdd` is registered, not run: no red → green cycle has been exercised in this fork.
 
 The other skills in this repo are still upstream-only: they are present in the tree, documented as upstream behaviour, and not part of this fork's manifest.
 
