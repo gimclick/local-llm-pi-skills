@@ -57,9 +57,11 @@
 > one foreground `researcher` at a time, the project glossary was updated, and the cleared map was
 > published through `/skill:to-spec`. Those operations are confirmed on GitHub.
 >
-> **Still untested in this fork:** `prototype`, `to-tickets`, `implement`, `triage`, and every tracker
-> backend other than GitHub (GitLab, local markdown, and the "other" path). Treat those as upstream
-> behaviour until a verification note in this repo says otherwise.
+> **Still untested in this fork:** `prototype` (registered in the manifest, never exercised), `to-tickets`,
+> `implement`, `triage`, and every tracker backend other than GitHub (GitLab, local markdown, and the
+> "other" path). Treat those as upstream behaviour until a verification note in this repo says otherwise.
+> A skill in the manifest, and a skill that has run, are different claims: only an exercised operation
+> counts as evidence here.
 >
 > **Upstream policy:** changes to `mattpocock/skills` are reviewed before being merged in.
 > Upstream history is never rewritten; our changes sit on top as separate commits.
@@ -156,7 +158,7 @@ When the installer asks which skills to take, include `setup-matt-pocock-skills`
 
 Pi discovers skills by scanning its configured skill directories for folders that contain `SKILL.md`; it advertises each one's name, description and path, and loads the full instructions only when a task calls for them. Force a load with `/skill:<name>`.
 
-This fork carries a `pi.skills` manifest in `package.json` that selects the six skills the adapted Wayfinder flow needs:
+This fork carries a `pi.skills` manifest in `package.json` that selects the seven skills the adapted Wayfinder flow needs:
 
 | Skill | Invocation in Pi |
 | --- | --- |
@@ -166,10 +168,13 @@ This fork carries a `pi.skills` manifest in `package.json` that selects the six 
 | `grilling` | model-invoked — reached for when the task fits, or forced with `/skill:grilling` |
 | `domain-modeling` | model-invoked |
 | `research` | model-invoked |
+| `prototype` | model-invoked |
 
 The three user-invoked skills are **not** in the agent's `<available_skills>` block, so no other skill and no agent can fire them. Everything in this fork that needs them says so in the docs, and the skills themselves say which command to name.
 
 `wayfinder` routes a ticket to whichever skill its type names, and checks that the skill is loaded before it reaches for it: a name in the agent's `<available_skills>` block for a model-invoked skill, Pi's resolved skill list for a user-invoked one. A skill sitting in this checkout but not loaded is reported on the ticket, which stays open, rather than worked with generic reasoning in place of the missing methodology. When the map clears, wayfinder hands off by naming the command: it tells the human to run `/skill:to-spec` with the map reference, and does not load that skill, close the map, or start the build.
+
+`prototype` is in the manifest, so a `wayfinder:prototype` ticket has a methodology to load: wayfinder reads its `SKILL.md` in the parent session and builds the artifact there, since the exchange needs the human present and no delegated agent can hold it. The artifact lands on a throwaway `prototype/<name>` branch, pushed with no PR and never merged, and the ticket carries a durable reference to it (branch, artifact path, commit identifier). The ticket stays open until the human gives a verdict on the artifact, and inside a map the prototype's code is never folded into production: the demonstration and the confirmed decision are what the map keeps. Standalone `prototype`, outside a map, keeps upstream's behaviour, including folding a validated result into the real code.
 
 `to-spec` takes one optional argument: a reference to a **Wayfinder map** (issue number or URL). With a map it synthesises the decisions that earlier sessions settled, reading the map and its tickets' resolution comments; with none it synthesises the current conversation, which is upstream's behaviour. Where the spec lands is the map's call, not the skill's: a map whose **Destination** names a repository file path gets a committed spec at that exact path, and a map that names none publishes through the tracker. There is no default path and no repo-wide `docs/specs/` convention.
 
