@@ -19,7 +19,8 @@
       "./skills/engineering/prototype",
       "./skills/engineering/to-tickets",
       "./skills/engineering/tdd",
-      "./skills/engineering/code-review"
+      "./skills/engineering/code-review",
+      "./skills/engineering/implement"
     ]
   },
   "scripts": {
