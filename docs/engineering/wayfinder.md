@@ -1,4 +1,4 @@
-> **This fork (Pi adaptation):** wayfinder is user-invoked here — type `/skill:wayfinder`, no agent can reach for it. Its research tickets resolve **one at a time, in the foreground**, never in parallel and never in the background. The shared runtime contract is in [the README](../../README.md).
+> **This fork (Pi adaptation):** wayfinder is user-invoked here — type `/skill:wayfinder`, no agent can reach for it. Its research tickets resolve **one at a time, in the foreground**, never in parallel and never in the background. It checks that a routed skill is loaded before reaching for it, and hands a cleared map back as a command (`/skill:to-spec` with the map reference). The shared runtime contract is in [the README](../../README.md).
 
 ## What it does
 
@@ -26,7 +26,7 @@ Greenfield is not a requirement. People use wayfinder routinely on legacy and ha
 
 The map and its tickets live on the repo's issue tracker, so wayfinder needs the tracker setup from [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) — in Pi, type `/skill:setup-matt-pocock-skills`. That step writes a "Wayfinding operations" section. The section describes how to express the map, its child tickets, blocking edges, and frontier queries on GitHub, GitLab, or local markdown. Wayfinder finds that doc through the pointer in your `CLAUDE.md` / `AGENTS.md`, not at a fixed path. With no tracker configured, it falls back to local markdown files.
 
-In this fork the GitHub tracker template additionally records a **Target repository** (`owner/repo`) that every issue, label, and comment command passes as `-R`, and marks any capability setup could not check as **unverified**. GitHub offers no preflight for sub-issues or native blocking without touching a real issue, so those fall back to body-line conventions until the first real ticket proves them. **This fork's GitHub tracker support has not passed an end-to-end live test** — no map, ticket, label, or resolution comment has been published through it.
+In this fork the GitHub tracker template additionally records a **Target repository** (`owner/repo`) that every issue, label, and comment command passes as `-R`, and records any capability setup could not check as **unverified** until a real operation proves it. **This fork's GitHub tracker path has been exercised end to end**: setup configured it, a map and its child tickets published as native sub-issues, blocking edges were created and read back through the open-only gate, a ticket was resolved with a resolution comment and closed, research delegation ran one foreground `researcher` at a time, and the cleared map was published through `/skill:to-spec`. Each proof replaces that capability's marker with the observation in the tracker file, leaving the other warnings and fallbacks in place. What remains untested in this fork is `prototype`, `to-tickets`, `implement`, `triage`, and every tracker backend other than GitHub.
 
 The tracker does real work. Its native blocking links show the frontier in the tracker's own UI. On a tracker without native dependency links (a self-hosted Gitea, say), wayfinder infers blockers from the map text. That works, but you must supervise it more closely.
 
@@ -78,7 +78,10 @@ This question is verbatim from a user report, and others report the same outcome
 **Can I work several tickets in parallel?**
 The frontier shows you which tickets you can take, and blocking edges make parallel work safe on paper. In practice, one ticket at a time is the safer default. If you work two grilling tickets at once, one session can ask you a question you just answered in the other, because the sessions share no [context](https://www.aihero.dev/ai-coding-dictionary/context). Prototype tickets have a known gap too. One user reported an agent that built three UI variations, chose one itself, and closed the ticket. That choice is yours, and the skill does not yet say so clearly enough. If you do run tickets in parallel, review the dependency graph yourself first.
 
-In this fork the answer is harder than "safer default". This setup has one inference slot, so research delegation is **enforced** as one-at-a-time foreground: two `researcher` runs side by side is a contract violation, not a style choice. Tickets themselves are still one-per-session by design, and nothing in this fork gives you a way to run them concurrently.
+In this fork the answer is harder than "safer default". The one-inference-slot rule governs inference a session starts, not the sessions you run: independent sessions each have their own slot, so working two unblocked tickets that way is normal, and the tracker expects concurrent edits. What is never allowed is one session putting a second delegated run on the wire while one is still running, or backgrounding one to keep working beside it. Two `researcher` runs side by side is a contract violation, not a style choice. Tickets themselves are still one-per-session by design, and nothing in this fork gives you a way to run them concurrently.
+
+**A ticket wants a skill that isn't installed, `prototype` being the usual case.**
+In this fork wayfinder checks before it reaches: a model-invoked skill is reachable when its name appears in the agent's `<available_skills>` block, and a user-invoked one is checked against Pi's resolved skill list, since that block never shows it. A skill sitting in the checkout but not loaded is a limitation, not a free pass: the ticket gets a comment naming the missing skill, stays open and unresolved, and keeps its place in the map. An agent improvising the methodology in its place reads as a settled decision that quietly dropped the thing the map was charted to keep. Install the skill, then take the ticket again.
 
 **Do I have to use GitHub Issues?**
 No. Any issue tracker works. GitHub has the best support, because its native sub-issues and blocking relationships make the frontier visible without opening the map. People also use GitLab, Linear, Jira and local markdown. There are two caveats. On a tracker with no native blocking, wayfinder infers the dependency graph from text, and you must correct it by hand. Local markdown puts the artifacts in your repo, which is not recommended, because material stored in the repo tends to persist by accident. Open-source maintainers hit the opposite problem (public trackers fill up with agent-generated planning tickets) and often choose local markdown anyway.
@@ -100,7 +103,9 @@ It is this skill. v1.1 renamed it to `wayfinder`, and you invoke it as `/wayfind
 - A session resolves one ticket, posts the answer as a resolution comment, closes it, and adds one line to the map's *Decisions so far*. Then it stops.
 - **Not yet specified** shrinks over time. When fog graduates into a ticket, it leaves that section and does not appear in both places.
 - When the opening breadth-first grill finds no fog at all, the skill stops and tells you the effort is small enough to skip the map.
-- The session that finishes the map points you toward a spec, not a pull request.
+- A ticket whose skill is not loaded comes back as a named limitation on the ticket, and the ticket stays open.
+- No hand-off is offered while a decision child is still open, blocked included, or while **Not yet specified** still holds fog.
+- The session that clears the map tells you to run `/skill:to-spec` with the map reference, and does not load that skill, close the map, or start building.
 
 ## Where it fits
 

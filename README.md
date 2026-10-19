@@ -46,12 +46,20 @@
 >   `SKILL.md`, advertised by name, description and path in the agent's `<available_skills>` block.
 >   A user-invoked skill (`disable-model-invocation: true` in frontmatter) is absent from that block,
 >   so no agent can load it: only the human can, by typing `/skill:<name>`.
+> - **Skill availability is checked, not assumed.** A skill another skill routes to may not be loaded
+>   in this run, so the routing skill asks Pi for its resolved skill list and reports a missing skill
+>   rather than improvising the methodology that skill carries.
 >
-> **Status: early integration and validation.** Nothing here is tested or verified yet.
-> No skill in this repo has been confirmed to work with Pi, local models, or constrained
-> inference. Do not assume any skill works until a verification note in this repo says so.
-> In particular, the **GitHub issue-tracker setup is adapted but has not passed an end-to-end
-> live test**: no map, ticket, label, or resolution comment has been published through it.
+> **Status: validated in part.** The **GitHub issue-tracker path has been exercised end to end** on a
+> throwaway repo: setup configured it and created the labels it was missing, a Wayfinder map and its
+> child tickets published as native sub-issues, blocking edges were created and read back through the
+> open-only gate, a ticket was resolved with a resolution comment and closed, research delegation ran
+> one foreground `researcher` at a time, the project glossary was updated, and the cleared map was
+> published through `/skill:to-spec`. Those operations are confirmed on GitHub.
+>
+> **Still untested in this fork:** `prototype`, `to-tickets`, `implement`, `triage`, and every tracker
+> backend other than GitHub (GitLab, local markdown, and the "other" path). Treat those as upstream
+> behaviour until a verification note in this repo says otherwise.
 >
 > **Upstream policy:** changes to `mattpocock/skills` are reviewed before being merged in.
 > Upstream history is never rewritten; our changes sit on top as separate commits.
@@ -160,6 +168,8 @@ This fork carries a `pi.skills` manifest in `package.json` that selects the six 
 | `research` | model-invoked |
 
 The three user-invoked skills are **not** in the agent's `<available_skills>` block, so no other skill and no agent can fire them. Everything in this fork that needs them says so in the docs, and the skills themselves say which command to name.
+
+`wayfinder` routes a ticket to whichever skill its type names, and checks that the skill is loaded before it reaches for it: a name in the agent's `<available_skills>` block for a model-invoked skill, Pi's resolved skill list for a user-invoked one. A skill sitting in this checkout but not loaded is reported on the ticket, which stays open, rather than worked with generic reasoning in place of the missing methodology. When the map clears, wayfinder hands off by naming the command: it tells the human to run `/skill:to-spec` with the map reference, and does not load that skill, close the map, or start the build.
 
 `to-spec` takes one optional argument: a reference to a **Wayfinder map** (issue number or URL). With a map it synthesises the decisions that earlier sessions settled, reading the map and its tickets' resolution comments; with none it synthesises the current conversation, which is upstream's behaviour. Where the spec lands is the map's call, not the skill's: a map whose **Destination** names a repository file path gets a committed spec at that exact path, and a map that names none publishes through the tracker. There is no default path and no repo-wide `docs/specs/` convention.
 
