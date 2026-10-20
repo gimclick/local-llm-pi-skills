@@ -23,7 +23,7 @@ A **seam** is the public boundary you test at: the interface where you observe b
 
 Ask: "What's the public interface, and which seams should we test?" Give each proposed seam a one-line note on what it catches and what it misses.
 
-When the shape of that interface is itself in question (how deep the module is, where the seam belongs, what the interface should expose), read `skills/engineering/codebase-design/SKILL.md` in this checkout for the vocabulary: it is the shared source of the module, interface, depth, seam, adapter, leverage and locality terms. Pi has no Skill tool, and that skill is not in this fork's manifest, so there is nothing to invoke: it is vocabulary to consult, not a workflow to launch, and its `DESIGN-IT-TWICE.md` parallel-subagent pattern stays out of scope here. If that file is not in the checkout, report that and continue with the seam guidance above; do not invent another methodology.
+When the shape of that interface is itself in question (how deep the module is, where the seam belongs, what the interface should expose), read the registered `codebase-design` skill for the vocabulary: it is the shared source of the module, interface, depth, seam, adapter, leverage and locality terms. Pi has no Skill tool, so load it by reading the `SKILL.md` at the path Pi advertises for it in the agent's `<available_skills>` block, not a path in this repository: it is vocabulary to consult, not a workflow to launch, and its `DESIGN-IT-TWICE.md` parallel-subagent pattern stays out of scope here. If `codebase-design` is not in that list, report that and continue with the seam guidance above; do not invent its contents or substitute another methodology.
 
 ## Anti-patterns
 

@@ -26,7 +26,8 @@
       "./skills/productivity/writing-for-agents",
       "./skills/engineering/retro",
       "./skills/productivity/handoff",
-      "./skills/engineering/diagnosing-bugs"
+      "./skills/engineering/diagnosing-bugs",
+      "./skills/engineering/codebase-design"
     ]
   },
   "scripts": {
