@@ -22,10 +22,10 @@ Do not delete, rewrite, or trim `CLAUDE.md`: it is upstream's, and Claude plugin
 
 | Surface | Harness | Selects | Now |
 | --- | --- | --- | --- |
-| `package.json` → `pi.skills` | Pi | this fork's Pi skills | 19 |
+| `package.json` → `pi.skills` | Pi | this fork's Pi skills | 20 |
 | `.claude-plugin/plugin.json` → `skills` | Claude Code, and Codex/Copilot/VS Code reading the same manifests | the promoted set | 27 |
 
-They are independent lists. A skill in one is not in the other: Pi loads nineteen, Claude ships 27, and the gap is deliberate, not drift. Changing one does not license changing the other, and a change in this fork does not add or remove Claude skills just to keep the lists aligned. Counts move only when a change deliberately registers or promotes a skill; name the list that changed in the changeset. [README.md](./README.md) lists the Pi set; the bucket READMEs and `README.md` list the promoted set.
+They are independent lists. A skill in one is not in the other: Pi loads twenty, Claude ships 27, and the gap is deliberate, not drift. Changing one does not license changing the other, and a change in this fork does not add or remove Claude skills just to keep the lists aligned. Counts move only when a change deliberately registers or promotes a skill; name the list that changed in the changeset. [README.md](./README.md) lists the Pi set; the bucket READMEs and `README.md` list the promoted set.
 
 ## Validation
 
@@ -44,5 +44,5 @@ Local inference here is limited to **one active model session at a time**. Do th
 
 ## Fork-specific (all harnesses)
 
-- This fork's Pi manifest is `package.json` → `pi.skills`; the nineteen skills it names are listed in [README.md](./README.md). The skills it does not name are present in the tree as upstream material and are not loaded in Pi.
+- This fork's Pi manifest is `package.json` → `pi.skills`; the twenty skills it names are listed in [README.md](./README.md). The skills it does not name are present in the tree as upstream material and are not loaded in Pi.
 - Do not probe for Claude, Codex, or any other harness executable to satisfy a check this fork does not need.

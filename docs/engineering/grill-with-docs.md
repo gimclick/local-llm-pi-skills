@@ -1,3 +1,5 @@
+> **This fork (Pi adaptation):** `grill-with-docs` is user-invoked and **registered in this fork's Pi manifest** as the twentieth skill, so it is absent from the agent's `<available_skills>` block and only the human can fire it, by typing `/skill:grill-with-docs` with no argument (upstream harnesses type `/grill-with-docs`). Its `SKILL.md` and its `agents/openai.yaml` are byte-identical to upstream at the pinned commit `447ca70872026d5b79d6073a546dac082117fed7`, so the one operative sentence is upstream's, and both skills it names, [grilling](https://aihero.dev/skills-grilling) and [domain-modeling](https://aihero.dev/skills-domain-modeling), are registered here and model-invoked, which is what makes the wrapper's two loads reachable on Pi. What is adapted is two appended sections: `## Invocation` names the command and states that it takes no argument, and `## Pi execution and authorization` replaces only the harness-specific instruction, because Pi has no Skill tool: each name is checked in the agent's `<available_skills>` block at the point of use and its `SKILL.md` read at the path Pi advertises there, the two loads are issued one at a time, a name that is not loaded is reported as a missing dependency together with the step it blocks, and the writes this skill exists to produce are gated, since `GLOSSARY.md` and `docs/adr/` are tracked project files whose write set is stated per resolved term or settled decision and held for one human approval. Neither dependency's method is restated in the wrapper, so both keep tracking upstream. It is **Implemented** in the README's maturity categories: registered and adapted here, with no representative interview exercised, so no claim is made for a grilling session, for a glossary or ADR written during one, or for either load site being entered at runtime. The shared runtime contract, including the maturity categories, is in [the README](../../README.md).
+
 ## What it does
 
 `grill-with-docs` interviews you about a plan or design until you and the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) share one understanding of it, and writes the vocabulary and the hard decisions into your repo while it does. It is the same interview [grill-me](https://aihero.dev/skills-grill-me) runs (a round of questions, then wait, then the next round), pointed at a codebase.
@@ -6,7 +8,7 @@ It is **[stateful](https://www.aihero.dev/ai-coding-dictionary/stateful)**. Ever
 
 ## When to reach for it
 
-You invoke this by typing `/grill-with-docs`, and the agent won't reach for it on its own.
+Type `/skill:grill-with-docs` in Pi (upstream harnesses type `/grill-with-docs`); the agent won't reach for it on its own.
 
 Reach for it at the start of a change, in a repo, when the plan is still fuzzy and the words for the thing are not settled yet. It is the single-session tool. Which grilling skill you want depends on what is in front of you:
 
