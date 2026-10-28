@@ -1,12 +1,14 @@
+> **This fork (Pi adaptation):** `code-review` is model-invoked and **registered in this fork's Pi manifest** as the tenth skill, so Pi advertises it by name, description and path in the agent's `<available_skills>` block and loads it by reading its `SKILL.md` (Pi has no Skill tool); force it with `/skill:code-review`. The two axes and their briefs are upstream's. What is adapted is execution: upstream issues both sub-agent calls together, this fork runs one inference slot, so the Standards reviewer is launched in the foreground, waited for, and only then is a separate fresh-context Spec reviewer launched. Neither reviewer sees the other's brief or findings. Pi's packaged `reviewer` agent is read-only and has no shell, so it cannot run `git diff`: the parent collects the diff text and hands it over with the pinned range and the axis-specific evidence, and checks that evidence is complete before delegating rather than truncating the diff or summarising the code. The fixed point is yours, never guessed: the skill records the reference you supplied, the merge-base SHA and the reviewed HEAD SHA, fails closed on a bad ref or an empty diff, and names staged, unstaged and untracked changes as outside the committed range. It is **Validated** in the README's maturity categories: it has been exercised successfully in at least one representative workflow here, which is not a claim that every axis, reviewer path, or fixed point has been exercised. The shared runtime contract, including the maturity categories, is in [the README](../../README.md).
+
 ## What it does
 
-`code-review` reviews the diff between `HEAD` and a fixed point you name (a commit, a branch, a tag, `main`, `HEAD~5`) along two axes. **Standards** asks whether the code follows how this repo writes code. **Spec** asks whether the code does what the originating issue or [spec](https://www.aihero.dev/ai-coding-dictionary/spec) asked for. Each axis runs in its own [sub-agent](https://www.aihero.dev/ai-coding-dictionary/subagent) so neither sees the other's reasoning.
+`code-review` reviews the diff between `HEAD` and a fixed point you name (a commit, a branch, a tag, `main`, `HEAD~5`) along two axes. **Standards** asks whether the code follows how this repo writes code. **Spec** asks whether the code does what the originating issue or [spec](https://www.aihero.dev/ai-coding-dictionary/spec) asked for. Each axis runs in its own [sub-agent](https://www.aihero.dev/ai-coding-dictionary/subagent) context, so neither sees the other's reasoning; in this fork the two run one at a time rather than in parallel.
 
 The skill never merges or re-ranks the two axes. The report ends with a worst issue *per axis* and declines to name a single winner across them. A change can pass one axis and fail the other. Code that follows every convention but implements the wrong thing passes Standards and fails Spec. Code that does exactly what the [ticket](https://www.aihero.dev/ai-coding-dictionary/ticket) asked but breaks the repo's conventions does the reverse. A blended verdict lets the passing axis hide the failing one.
 
 ## When to reach for it
 
-Type `/code-review`, or the agent reaches for it automatically when you ask to review a branch, a PR, work in progress, or anything "since X".
+Type `/skill:code-review` in Pi (upstream harnesses type `/code-review`), or the agent reaches for it automatically when you ask to review a branch, a PR, work in progress, or anything "since X". It is model-invoked, so it is in the agent's `<available_skills>` block and needs no human command to be reachable.
 
 | Your situation | Reach for |
 | --- | --- |
@@ -17,7 +19,7 @@ Type `/code-review`, or the agent reaches for it automatically when you ask to r
 | The whole codebase has drifted, not one diff | [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) |
 | Something is broken and you do not know why | [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs) |
 
-You must supply the fixed point. If you do not, the skill asks for one rather than guessing. Before it spawns anything, it checks that the ref resolves and that the diff is not empty, so a mistyped branch name fails in front of you instead of inside two sub-agents.
+You must supply the fixed point. If you do not, the skill asks for one rather than guessing. Before it spawns anything, it checks that the ref resolves and that the diff is not empty, so a mistyped branch name fails in front of you instead of inside two reviewers.
 
 ## Prerequisites
 
@@ -30,7 +32,7 @@ The Spec axis needs a spec to exist and be findable. It looks in this order:
 3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch or feature name.
 4. Asking you.
 
-Step 1 depends on the tracker doc, which [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) writes. Without it the axis still works if you hand it a path. With no spec at all, the skill skips the Spec sub-agent and the report says "no spec available" rather than inventing requirements.
+Step 1 depends on the tracker doc, which [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) writes. In Pi, type `/skill:setup-matt-pocock-skills` to write that doc; the review skill names the command and never runs that user-invoked skill itself. Without it the axis still works if you hand it a path. With no spec at all, the skill skips the Spec sub-agent and the report says "no spec available" rather than inventing requirements.
 
 ## The two axes
 
@@ -58,7 +60,7 @@ One answer is to remove Claude Code's built-in skills entirely. That saves a lot
 
 **Its sub-agents keep invoking `/code-review` again and spawn more agents.**
 
-This is a known open bug. Several people have reproduced it, in more than one harness. The Standards and Spec prompts do not forbid delegation, so a sub-agent can find the skill again and fan out again. One report reached more than 50 agents. The fix people have applied on forks is one line appended to both sub-agent briefs: "Do not invoke `/code-review` or spawn additional agents: perform this review directly." Some prefer to handle it at the harness level so every skill inherits the guard. Neither is in the shipped skill yet. If you run this unattended, watch the agent count.
+This is a known open bug. Several people have reproduced it, in more than one harness. The Standards and Spec prompts do not forbid delegation, so a sub-agent can find the skill again and fan out again. One report reached more than 50 agents. The fix people have applied on forks is one line appended to both sub-agent briefs: "Do not invoke `/code-review` or spawn additional agents: perform this review directly." Some prefer to handle it at the harness level so every skill inherits the guard. Neither is in the shipped skill yet. If you run this unattended, watch the agent count. In this fork the guard line is not copied: Pi's harness keeps a child from fanning out on its own unless the parent delegated fanout, so the runaway spawn loop cannot start here, and the two reviews are issued one at a time by design.
 
 **Should I run it in the same [session](https://www.aihero.dev/ai-coding-dictionary/session) that wrote the code?**
 
@@ -78,11 +80,13 @@ Each fix adds new code to review, and the judgement-call half of the Standards a
 
 **Does it review my uncommitted work?**
 
-No. It diffs `<fixed-point>...HEAD`. The three-dot form measures from the merge-base and excludes staged and working-tree changes. If `implement` has not made an interim commit, the review cannot see the work that is about to go into the next commit. Commit first, then review, then amend or add a fixup.
+No. It diffs `<fixed-point>...HEAD`. The three-dot form measures from the merge-base and excludes staged and working-tree changes. If `implement` has not made an interim commit, the review cannot see the work that is about to go into the next commit. Commit first, then review, then amend or add a fixup. This fork resolves that form once, to commits: it reports the reference you supplied, the merge-base SHA and the reviewed HEAD SHA, and runs the diff and the commit list on those SHAs, so a branch moving mid-review cannot change what was inspected. A positional reference that reaches unrelated history is reported and tightened by asking, not reviewed silently.
 
 ## It's working if
 
-- It refuses to start on a bad ref or an empty diff, before any sub-agent is spawned.
+- It refuses to start on a bad ref or an empty diff, before any reviewer is spawned.
+- The report opens with the pinned range: the reference you supplied, the merge-base SHA, and the reviewed HEAD SHA, and says whether two sequential fresh-context reviewers ran or the labelled foreground-only fallback.
+- The two reviews arrive one after the other, and neither reviewer's brief mentions the other axis.
 - The report arrives as two separate blocks under `## Standards` and `## Spec`, not one merged list.
 - Every Standards finding names either a rule in one of your repo's files or one of the twelve smells, with the hunk quoted; every Spec finding quotes a line of the spec.
 - The closing summary gives a worst issue per axis and declines to pick an overall winner.

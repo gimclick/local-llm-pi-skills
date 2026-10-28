@@ -8,10 +8,34 @@
     "url": "https://github.com/mattpocock/skills"
   },
   "license": "MIT",
+  "pi": {
+    "skills": [
+      "./skills/engineering/setup-matt-pocock-skills",
+      "./skills/productivity/grilling",
+      "./skills/engineering/domain-modeling",
+      "./skills/engineering/research",
+      "./skills/engineering/wayfinder",
+      "./skills/engineering/to-spec",
+      "./skills/engineering/prototype",
+      "./skills/engineering/to-tickets",
+      "./skills/engineering/tdd",
+      "./skills/engineering/code-review",
+      "./skills/engineering/implement",
+      "./skills/engineering/pr",
+      "./skills/engineering/triage",
+      "./skills/productivity/writing-for-agents",
+      "./skills/engineering/retro",
+      "./skills/productivity/handoff",
+      "./skills/engineering/diagnosing-bugs",
+      "./skills/engineering/codebase-design",
+      "./skills/engineering/improve-codebase-architecture"
+    ]
+  },
   "scripts": {
     "changeset": "changeset",
     "version": "changeset version && node scripts/sync-plugin-version.mjs",
-    "check-plugin-version": "node scripts/sync-plugin-version.mjs --check"
+    "check-plugin-version": "node scripts/sync-plugin-version.mjs --check",
+    "check-pi-registration": "node scripts/check-pi-registration.mjs"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",

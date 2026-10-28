@@ -1,0 +1,15 @@
+---
+"mattpocock-skills": patch
+---
+
+`AGENTS.md` is no longer a symlink to `CLAUDE.md`. Upstream keeps it that way so Codex reads the same instructions Claude Code reads, and that link was inherited here unchanged. In this fork it made Pi's project instructions a file written for Claude Code, with nothing in the repo saying how to validate a Pi change. It is now a fork-local file, and it is harness-aware rather than Pi-only: it names which harnesses read it (Pi, Codex, and other harnesses following the `AGENTS.md` convention), states that Claude Code reads `CLAUDE.md` instead and never this file, and tells the reader to identify the harness it is actually running in rather than assume Pi. Sections are labelled **all harnesses** or **Pi only**, so a Pi rule cannot be applied in Codex while the shared upstream guidance still applies there.
+
+Precedence is a closed list of three overrides, not an open "Pi wins" rule: manifest validation, skill registration, and execution. Everywhere else `CLAUDE.md` applies unchanged, in every harness. `CLAUDE.md` itself is untouched byte for byte, and the two files point at each other so the shared rules stay reachable from either entry point.
+
+The two registration surfaces are now documented as separate lists. `package.json` → `pi.skills` selects this fork's Pi skills (eight). `.claude-plugin/plugin.json` → `skills` selects the promoted set for Claude, Codex, Copilot and VS Code (27). Neither list is derived from the other, and a change to one does not license a change to the other.
+
+Validation is split the same way. Pi runs `node scripts/check-pi-registration.mjs` (also `npm run check-pi-registration`), a new dependency-free script that reads `package.json` and the folders `pi.skills` names: the manifest parses as an array of strings, every path is explicit, repo-relative, inside the repo and unique, each path holds a `SKILL.md`, each frontmatter `name` matches its folder and carries a description, and the invocation pairing agrees across `disable-model-invocation` and the `policy.allow_implicit_invocation` in that skill's `agents/openai.yaml`. It only reads, needs nothing beyond Node, and fails closed: an unterminated frontmatter, a duplicated key, or a value that is not a clean boolean is reported rather than defaulted to model-invoked. Claude keeps `claude plugin validate . --strict`, but only when a change actually touches a Claude artifact and only when the CLI is present. A missing Claude CLI is not a validation failure in this fork, and the CLI is never installed to satisfy one.
+
+The execution constraint is stated for Pi sessions in this fork: one active model session at a time, work done in the session, no delegated agents by default, and where a skill's own text describes delegation it is one foreground run the session waits for.
+
+No skill behaviour changed and no skill file changed. The eight Pi registrations and the 27 Claude-promoted registrations are unchanged, as is `scripts/link-skills.sh`, `.agents/install-block.md`, and every manifest entry.

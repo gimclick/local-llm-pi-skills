@@ -1,3 +1,5 @@
+> **This fork (Pi adaptation):** `prototype` is model-invoked and **registered in this fork's Pi manifest**, so Pi advertises it by name, description and path in the agent's `<available_skills>` block and loads it by reading its `SKILL.md` (Pi has no Skill tool). Force it with `/skill:prototype`. Its files are upstream's, unchanged. What this fork changes is one boundary: inside a `wayfinder` map, a prototype is never promoted. The shared runtime contract is in [the README](../../README.md).
+
 ## What it does
 
 `prototype` writes **throwaway code that answers a question**: does this state model feel right, or what should this screen look like. The question comes first and decides what you build. A prototype that answers the wrong question is wasted, however good it looks.
@@ -29,6 +31,21 @@ You record the **answer** (the verdict plus the question it settled) somewhere p
 
 The **prototype** is the runnable evidence the answer came from, and you do not delete it. It doesn't belong in main either, because nobody maintains it and it goes stale fast. So you commit it to a throwaway `prototype/<name>` branch out of main, never merge it, and leave a [context pointer](https://www.aihero.dev/ai-coding-dictionary/context-pointer) to that branch on the implementation issue. Main stays clean, and whoever picks the work up next can find and re-run the prototype.
 
+## Inside a wayfinder map
+
+A `wayfinder` map schedules `prototype` decision [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket), and there the skill bends in one direction: nothing gets promoted. The map is planning, so a prototype ticket produces the demonstration and the settled decision, and stops there.
+
+| What standalone `prototype` does | What a wayfinder map does |
+| --- | --- |
+| Folds the validated module or the winning variant into the real code | Keeps the demonstration on its branch and the decision in the ticket, and folds nothing. The build belongs to the [spec](https://www.aihero.dev/ai-coding-dictionary/spec) and the tickets cut from it, in a later session |
+| Leaves a context pointer to the branch on the implementation issue | Records the branch, the artifact's path inside it, and the commit identifier on the **decision ticket**, which owns the artifact. A map has no implementation issues, and inventing one invents a downstream artifact that does not exist yet |
+| Records the verdict wherever the answer is kept | The human supplies the verdict, and the ticket's resolution comment records the question and the settled decision in the human's own words |
+| Treats a working demo as answered | The ticket stays open until the human confirms. An agent that picks a winning UI variant has answered a question it was never asked, and the map reads that as settled |
+
+The artifact is committed to a throwaway `prototype/<name>` branch and pushed, with no pull request and no merge into the default branch, so prototype code cannot reach production by accident. The map stays an index: it gists the verdict and links to the ticket that holds it.
+
+This is a bend, not a fork. `prototype` reached for outside a map still folds a validated result into the real code when the user intends to promote it.
+
 ## Common questions
 
 **Wait, isn't the prototype supposed to be deleted?**
@@ -57,6 +74,7 @@ It can be, if you prototype questions you could have answered by talking, or let
 - The UI variants disagree about layout and information hierarchy, not just colour and copy, and the feedback you get is "the header from B with the sidebar from C".
 - It is answered in one sitting. If you're still building it a day later, the question was too big; split it.
 - When it's over, main contains the decision and none of the prototype, and the implementation issue points at the branch that still holds it.
+- Inside a wayfinder map, the prototype ticket names the branch, the artifact path, and the commit, and it stays open until you give the verdict.
 
 ## Where it fits
 

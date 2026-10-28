@@ -1,3 +1,5 @@
+> **This fork (Pi adaptation):** `domain-modeling` is model-invoked — Pi advertises it by name, description and path in the agent's `<available_skills>` block and loads it by reading its `SKILL.md`. Pi has no Skill tool, so "load the skill" means read that path. Force it with `/skill:domain-modeling`. The shared runtime contract is in [the README](../../README.md).
+
 ## What it does
 
 `domain-modeling` builds and sharpens a project's **ubiquitous language** while you are designing. It challenges a term that conflicts with the glossary, asks for a precise word where you used a vague one, and tests a relationship against a concrete scenario until the boundaries are exact.
@@ -6,7 +8,7 @@ It is the **active** discipline, not the passive one. Any skill can read `GLOSSA
 
 ## When to reach for it
 
-Type `/domain-modeling`, or the agent reaches for it automatically when a task fits. In practice, automatic invocation is the weakest part of the skill. When `grill-with-docs` or `wayfinder` say to load it, [models](https://www.aihero.dev/ai-coding-dictionary/model) often load `grilling` and skip this one. If a [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) session runs and `GLOSSARY.md` is unchanged at the end, that is what happened. Invoke it by name alongside the other skill.
+Type `/skill:domain-modeling` in Pi, or the agent reaches for it automatically when a task fits. In practice, automatic invocation is the weakest part of the skill. When `grill-with-docs` or `wayfinder` say to load it, [models](https://www.aihero.dev/ai-coding-dictionary/model) often load `grilling` and skip this one. In Pi the wording is already "load both the `grilling` and `domain-modeling` skills", and there is no Skill tool to call — a named skill is a file to read, so the same miss can still happen. If a [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) session runs and `GLOSSARY.md` is unchanged at the end, that is what happened. Invoke it by name alongside the other skill.
 
 Reach for it when the *words* are the problem:
 

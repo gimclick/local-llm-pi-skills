@@ -42,3 +42,15 @@ Each sub-agent outputs:
 Present designs sequentially so the user can absorb each one, then compare them in prose. Contrast by **depth** (leverage at the interface), **locality** (where change concentrates), and **seam placement**.
 
 After comparing, give your own recommendation: which design you think is strongest and why. If elements from different designs would combine well, propose a hybrid. Be opinionated: the user wants a strong read, not a menu.
+
+## Running it where parallel sub-agents are unavailable (Pi, this fork)
+
+The method above is upstream's, and it is what to run wherever the harness gives each sub-agent its own independent context. Where it does not, keep the same shape and run the alternatives sequentially in the current session:
+
+- Keep three or more **radically different** interfaces, and keep a different design constraint on each one: minimize the interface, maximize flexibility, optimize the most common caller, and design around ports and adapters where a cross-seam dependency exists.
+- Keep the same output contract per alternative: the interface (types, methods and params, plus invariants, ordering and error modes), a usage example, what the implementation hides behind the seam, the dependency strategy and adapters from [DEEPENING.md](DEEPENING.md), and where leverage is thin.
+- Present, compare, recommend and hybridize exactly as Step 3 says, on **depth**, **locality** and **seam placement**, with the same opinionated read.
+
+State the limit rather than paper over it. Alternatives written in one session are **not independent**: each later one is written with the earlier ones already in the window, and separate context windows are what buy the radical difference this technique asks for. Say the run is a sequential fallback, not upstream's method, and never present it as equivalent to it.
+
+A single delegated agent, run one at a time, is an optional way to get one genuinely separate perspective. It is authorized per design task by the human, never automatic here, and one agent yields two independent designs rather than upstream's three or more.
