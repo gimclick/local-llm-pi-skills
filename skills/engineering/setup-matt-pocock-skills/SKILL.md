@@ -23,7 +23,7 @@ Look at the current repo to understand its starting state. Read whatever exists;
 - `git remote -v` and `.git/config`: which GitHub repos do the remotes point at? A fork normally has `origin` (the fork) plus `upstream` (the original), and issues belong to one of them, not either automatically. Note which remote the current branch pushes to.
 - GitHub capability, when a GitHub remote exists: `gh repo view <owner>/<repo> --json hasIssuesEnabled,viewerPermission,viewerCanAdminister` — is Issues enabled on that repo, and can the signed-in account write? (`gh repo view` takes the repo as an argument, not `-R`.)
 - `AGENTS.md` and `CLAUDE.md` at the repo root: does either exist? Is there already an `## Agent skills` section in either?
-- `GLOSSARY.md` and `GLOSSARY-MAP.md` at the repo root
+- `GLOSSARY.md` and `GLOSSARY-MAP.md` at the repo root, and the legacy `CONTEXT.md` / `CONTEXT-MAP.md`. If a legacy file exists, offer to `git mv` it to its `GLOSSARY` name and rewrite those names in `docs/agents/domain.md`.
 - `docs/adr/` and any `src/*/docs/adr/` directories
 - `docs/agents/`: read what is actually there, file by file. A partial set (only `triage-labels.md`, say) is **not** completed setup: the sections whose files are missing are still unconfigured, and the ones present may hold choices that differ from the seed templates. Read them before re-offering a section.
 - `.scratch/`: a sign that a local-markdown issue tracker convention is already in use
@@ -66,6 +66,8 @@ Then offer:
 - **Other** (Jira, Linear, etc.): ask the user to describe the workflow in one paragraph; the skill will record it as freeform prose
 
 Record the choice in `docs/agents/issue-tracker.md`, and record the confirmed `OWNER/REPO` in the GitHub/GitLab templates' **Target repository** line — downstream skills pass it as `-R` instead of re-inferring it from the remotes. The GitHub and GitLab templates carry a "PRs as a request surface" flag, defaulted **off**. Leave it off and don't raise it: a user who wants external PRs in the triage queue can flip the flag in the file later.
+
+A GitHub or GitLab tracker needs a reachable repo. When the user picks one and no `git remote` points at that host, get the repo URL from them and wire it up (`git init` if needed, `git remote add origin <url>`) before going further. Done when `gh repo view` / `glab repo view` prints the project from inside this directory; if it can't, stop and tell the user what's missing.
 
 **Section B: Triage label vocabulary.** Skip this section entirely if the `triage` skill isn't installed (exploration told you), since an uninstalled skill needs no labels.
 
