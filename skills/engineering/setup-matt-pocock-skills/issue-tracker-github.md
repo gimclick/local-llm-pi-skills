@@ -52,6 +52,8 @@ Sub-issue linking and native blocking belong to the tracker, not to wayfinding a
 - A separate **implementation umbrella** issue is allowed only when the user has explicitly approved it, and is never created automatically. When approved, it holds the tickets and names which spec file is canonical.
 - Where the source was an **existing issue**, its tickets are children of it, as above. The one exception is a Wayfinder decision map, which never takes an implementation child.
 
+File issues only into the user's own repo. Never file into `mattpocock/skills` (the repo these skills come from) unless the user owns it. In a fork, `gh` can default to the upstream parent, so before the first `gh issue create` of a session, check the target with `gh repo view --json nameWithOwner` and confirm it with the user if it is not their repo.
+
 ## Pull requests as a triage surface
 
 **PRs as a request surface: no.** _(Set to `yes` if this repo treats external PRs as feature requests; `/triage` reads this flag.)_
