@@ -1,3 +1,5 @@
+> **This fork (Pi adaptation):** `to-questionnaire` is user-invoked and **registered in this fork's Pi manifest** as the twenty-second skill, so it is absent from the agent's `<available_skills>` block and only the human can fire it, by typing `/skill:to-questionnaire` with the decision it is about in natural language after it (upstream harnesses type `/to-questionnaire`). Its `SKILL.md` carries upstream's 2,904-byte file byte-identical as its prefix at the pinned commit `59db609eb1e18aaf59b63284d0e52255aff0c63c`, and its `agents/openai.yaml` is byte-identical in full, so the three steps, the send-not-subject rule, the discovery-questionnaire shape, the most-important-first ordering and the inline `<questionnaire-template>` are upstream's. It names no other skill, so there is no load to translate and no missing-dependency split to draw; the adaptation is entirely appended, which is the narrowest shape this fork allows. `## Invocation` names the command and states that "Grill the send" is upstream's verb for the two exchanges inside this skill rather than the `grilling` skill this fork registers, since that interview runs on the subject and this skill's own first line rules the subject out. `## Pi execution and authorization` states that the interview runs in this session with no delegation and no second model session, that the questionnaire file resolves against the project under review rather than this checkout or the installed package clone, that the one file is the only side effect with delivery left to the human, and that a fresh session holds no memory of the grilling this skill is meant to follow. It is **Implemented** in the README's maturity categories: registered and adapted, not yet exercised in a representative runtime workflow here. Two neighbours this page names are not registered in this fork, `grill-me` and `ask-matt`; they are upstream material Pi does not load, so their mentions here are upstream's routing rather than a command a Pi session can type. The shared runtime contract, including the maturity categories, is in [the README](../../README.md).
+
 ## What it does
 
 `to-questionnaire` turns a decision you can't settle on your own into a **questionnaire**: a Markdown document you hand to the one person who holds what you're missing, for them to fill in async or for the two of you to work through in a meeting.
@@ -6,7 +8,7 @@ It grills you about the **send**, never the subject. An interview about the topi
 
 ## When to reach for it
 
-You invoke this by typing `/to-questionnaire`; the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) won't reach for it on its own.
+You invoke this by typing `/skill:to-questionnaire` in Pi (upstream harnesses type `/to-questionnaire`); the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) won't reach for it on its own.
 
 Reach for it when a decision is blocked on knowledge that lives in one other person's head: a client, a domain expert, an exec who owns the business rules, a colleague on a team you don't sit with. Which skill you want depends on where the answers are:
 
@@ -17,7 +19,7 @@ Reach for it when a decision is blocked on knowledge that lives in one other per
 | Someone else's head | `to-questionnaire` |
 | Nobody's head yet, the question needs something to react to | [prototype](https://aihero.dev/skills-prototype) |
 
-The common case is a [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) session that stalls because some of the questions it raised aren't yours to answer. Run `/to-questionnaire` in that same conversation to take those questions offline, then bring the answers back and carry on.
+The common case is a [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) session that stalls because some of the questions it raised aren't yours to answer. Run `/skill:to-questionnaire` in that same conversation to take those questions offline, then bring the answers back and carry on.
 
 ## The send, not the subject
 

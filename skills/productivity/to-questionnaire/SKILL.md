@@ -52,3 +52,16 @@ _Why this matters: it decides whether we provision for burst traffic now or defe
 A closing catch-all: anything we didn't ask that we should know?
 
 </questionnaire-template>
+
+## Invocation
+
+User-invoked: no agent can reach for it. In Pi, only the human can fire it, by typing `/skill:to-questionnaire` with the decision it is about in natural language after it (upstream harnesses type `/to-questionnaire`). It is absent from the agent's `<available_skills>` block, so nothing in this set and no agent can start it.
+
+**"Grill the send" is upstream's own verb, not the `grilling` skill.** The grilling this skill does is the two exchanges numbered 1 and 2 above, which it runs itself, about the send. It loads no other skill. The `grilling` skill interviews about the subject, which is what the line above rules out here.
+
+## Pi execution and authorization
+
+- **The interview runs in this session, one exchange at a time.** Two exchanges, then drafting. No delegation, no second model session, no load of another skill.
+- **`to-questionnaire-<slug>.md` lands in the project the session is working on**, not in this checkout, not in the installed package clone, and not beside the loaded `SKILL.md`. Upstream's default stays upstream's: the current directory. Ask for another path only where the recipient will not find the file there.
+- **That one file is the only side effect.** It writes the file and reports the path. It sends nothing: no email, no chat post, no tracker write, no commit, no branch, no pull request. Delivery is the human's.
+- **A fresh session holds no memory of the interview you want to take offline.** The drafting in step 3 draws on the conversation to aim the questions at the gap, so fire this in the same session as the grilling whose questions are not yours to answer. Started in a fresh session it knows nothing about that one, and the topic comes back when you answer "what do you need back?".
