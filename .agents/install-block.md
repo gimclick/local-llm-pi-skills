@@ -15,6 +15,7 @@ Claude Code installs from its official marketplace, `claude-plugins-official`. E
 | Copilot CLI   | `@mattpocock` marketplace        | Yes, after a one-time `autoUpdate: true`                         |
 | VS Code       | Chat: Install Plugin From Source | Yes, daily, by default                                           |
 | Gemini CLI    | `gemini skills install` (copies) | No. A Gemini extension would need a flat `skills/<name>/` layout |
+| Pi            | `pi install git:…` (clone)       | No. Run `pi update <source>`                                        |
 | Everyone else | skills.sh                        | No. Run `npx skills update`, and re-run `add` for new skills     |
 
 Sources (2026-10-08): Codex `core-plugins/src/manager.rs`; Copilot [cli-config-dir-reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference); VS Code `pluginAutoUpdate.ts`; Gemini `skillLoader.ts`.
@@ -86,14 +87,28 @@ Re-run both commands to update.
 
 </canonical-block>
 
+## Pi
+
+Pi's own installer clones the repo and loads only the skills `package.json` → `pi.skills` names, not the whole tree. Verified 2026-10-28 against the installed clone at `~/.pi/agent/git/github.com/gimclick/local-llm-pi-skills`: it carries `skills/misc/git-guardrails-claude-code` and `skills/in-progress/chief-of-staff`, and neither loads, because neither is named in the manifest. The route is not managed, so it stays in the manual column: nothing refreshed the clone on its own, and the refresh is a command the user runs.
+
+<canonical-block name="pi">
+
+```bash
+pi install git:github.com/gimclick/local-llm-pi-skills
+```
+
+Refresh with `pi update git:github.com/gimclick/local-llm-pi-skills`.
+
+</canonical-block>
+
 ## Every other agent, or editable files (skills.sh)
 
-`-a` preselects the agent. Each agent in the comment was run on 2026-10-07. Prefer skills.sh to an agent's own repo installer, such as `amp skill add` or `pi install git:…`, because those also pull in `misc/` and `in-progress/`. `npx skills update` skips skills added upstream since `add`, so the block tells users to re-run `add`.
+`-a` preselects the agent. Each agent in the comment was run on 2026-10-07. Prefer skills.sh to an agent's own repo installer, such as `amp skill add`, because those also pull in `misc/` and `in-progress/`. Pi is the exception, and it does not use this block: Pi's own package route reads the `pi.skills` manifest in `package.json` and loads only the names it declares, so `misc/` and `in-progress/` stay out. `npx skills update` skips skills added upstream since `add`, so the block tells users to re-run `add`.
 
 <canonical-block name="other-agents">
 
 ```bash
-npx skills@latest add mattpocock/skills -a <agent>  # cursor, opencode, devin, windsurf, amp, pi; omit -a to choose
+npx skills@latest add mattpocock/skills -a <agent>  # cursor, opencode, devin, windsurf, amp; omit -a to choose
 ```
 
 When the installer asks which skills to take, include `setup-matt-pocock-skills`. To update, run `npx skills@latest update`, and re-run `add` to pick up new skills.
@@ -118,4 +133,4 @@ npx skills@latest update <name>
 
 ## The two routes are exclusive
 
-The plugin is a managed, read-only bundle you subscribe to. skills.sh writes files you own and edit. Installing both leaves the user with every skill twice: always say "pick one".
+The plugin is a managed, read-only bundle you subscribe to. skills.sh writes files you own and edit. Installing both leaves the user with every skill twice: always say "pick one". Pi prints the symptom of a double install at startup rather than hiding it. Two surfaces carrying the same skill name produce a `[Skill conflicts]` block, and Pi keeps the first skill it discovers and skips the rest, so a skills.sh farm under `~/.agents/skills/` shadows the package copy and upstream stops landing without any further signal. Pi users pick the package route above and do not also run `npx skills add mattpocock/skills -a pi`. Observed on 2026-10-28: a 34-entry farm under `~/.agents/skills/` symlinked into this checkout collided with the installed package clone, and each of the 19 names the manifest declared was skipped in favour of the farm.
