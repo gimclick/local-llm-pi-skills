@@ -32,7 +32,8 @@
       "./skills/engineering/grill-with-docs",
       "./skills/productivity/wait-what",
       "./skills/productivity/to-questionnaire",
-      "./skills/engineering/wizard"
+      "./skills/engineering/wizard",
+      "./skills/productivity/teach"
     ]
   },
   "scripts": {

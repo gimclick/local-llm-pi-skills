@@ -138,3 +138,18 @@ Glossaries, in particular, are an essential reference. Once one is created, it s
 ## `NOTES.md`
 
 The user will sometimes express preferences of how they want to be taught, or things you should keep in mind. This is the place to record those preferences, so you can refer back to them when designing lessons or working with the user.
+
+## Invocation
+
+In Pi, only the human can fire it, by typing `/skill:teach` with the topic in natural language after it (upstream harnesses type `/teach`). Where the mission is unknown, the topic is still enough to start: the first job is the interview about why.
+
+## Pi execution and authorization
+
+The method above is upstream's and runs as written, in this session, with no delegation and no second model session. What this fork has to pin down is where the workspace is, because the whole skill is that directory.
+
+- **The workspace is the directory the session was started in, not the directory holding this file.** Every path above (`MISSION.md`, `RESOURCES.md`, `./reference/`, `./learning-records/`, `./lessons/`, `./assets/`, `NOTES.md`) resolves against it. Never write them beside a loaded `SKILL.md`, in this skills checkout, or in the installed package clone under `~/.pi/agent/git/`: that clone is a git checkout that advances when the fork's `main` advances, and a course written there is lost on the next merge. Where the session started in one of those two places, name it and ask the human where the teaching workspace should live before writing anything.
+- **The four `*-FORMAT.md` files are the exception: they resolve against the directory holding the loaded `SKILL.md`, which is the installed package clone rather than this checkout.** `GLOSSARY-FORMAT.md` is bundled but nothing above links it, so a glossary only appears if you ask for one.
+- **Sources and communities come from what this session can actually reach, never from its own memory.** Upstream's "never trust your parametric knowledge", "gathered from trusted resources" and "find high-reputation communities the user can join" name things the session has to reach. Where it can search or fetch, it reads before it cites and quotes only what it read; where it cannot, it asks the human for the link or the community name. It never invents a URL, a title, an author, or a community.
+- **The browser is the human's.** "Open the lesson file for the user by running a CLI command" is upstream's, and this session opens nothing: it writes the lesson, gives its absolute path and the command the human can run to open it, and never claims a rendered inspection, since the agent cannot see the page.
+- **The writes are gated.** This skill exists to build a directory, so before the first file it states its write set once, in full, and holds it for one human answer. Approved means that set and no wider. No answer means stop at the mission interview and hand the plan over. A lesson, a reference document and a learning record are separate files, not one edit: the set is stated per file, and nothing here authorizes a commit, a branch, a push, or a pull request in the workspace repo.
+- **State lives in the files, not in the conversation.** A fresh session started in the workspace continues from the files above and re-fires by typing `/skill:teach` with what is wanted next; one started elsewhere has no course to continue.

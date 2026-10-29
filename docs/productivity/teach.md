@@ -1,3 +1,5 @@
+> **This fork (Pi adaptation):** `teach` is user-invoked and **registered in this fork's Pi manifest** as the twenty-fourth skill, so it is absent from the agent's `<available_skills>` block and only the human can fire it, by typing `/skill:teach` with the topic in natural language after it (upstream harnesses type `/teach`). Its `SKILL.md` carries upstream's 9,733-byte file byte-identical as its prefix at the pinned commit `ad5400b930b297b0c0cb231ff1ffe42a7da666aa`, and its four bundled format files and its `agents/openai.yaml` are untouched, so the workspace layout, the split between knowledge, skills and wisdom, the storage-strength philosophy and its retrieval-practice, spacing and interleaving drills, the lesson and component rules with the shared stylesheet as the first component, the mission interview, the zone of proximal development, the quiz answer-shape rule and the community delegation are upstream's. It names no other skill, so the adaptation is entirely appended: `## Invocation` and `## Pi execution and authorization`, which pin where the workspace is (the directory the session was started in, never the directory holding a loaded `SKILL.md`, this checkout, or the installed package clone under `~/.pi/agent/git/`, which advances when the fork's `main` does), keep the four `*-FORMAT.md` files as the exception that resolves against the loaded `SKILL.md`, whose directory is the installed clone rather than this checkout, state that `GLOSSARY-FORMAT.md` is bundled but unlinked upstream so a glossary only appears if asked for, reach sources and communities rather than remember them, since upstream's "never trust your parametric knowledge", "gathered from trusted resources" and "find high-reputation communities the user can join" all name things the session has to reach and it quotes only what it read or asks the human for a link or a community name, hand the browser to the human since the session opens nothing and claims no rendered inspection, gate the writes behind one stated write set and one human answer, and keep the course state in the files rather than in the conversation. The file grows from 9,733 bytes upstream to 12,740, and it costs only the sessions where the human types the command, since a user-invoked skill is never loaded automatically. It is **Implemented** in the README's maturity categories: registered and adapted here, with no representative teaching run exercised. The scope is stated in full in [the README](../../README.md). The shared runtime contract, including the maturity categories, is in [the README](../../README.md).
+
 ## What it does
 
 `teach` turns the directory you run it in into a standing teaching workspace and teaches you one topic across many [sessions](https://www.aihero.dev/ai-coding-dictionary/session), in short self-contained HTML lessons.
@@ -6,7 +8,7 @@ It does not teach from what the [model](https://www.aihero.dev/ai-coding-diction
 
 ## When to reach for it
 
-You invoke this by typing `/teach`; the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) won't reach for it on its own.
+Type `/skill:teach` in Pi, with the topic in natural language after it (upstream harnesses type `/teach`); the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) won't reach for it on its own.
 
 Reach for it when the learning is the project: a language, a framework, a codebase you have just joined, yoga, shaders, a certification. It is not the tool for one explanation in passing.
 
@@ -35,7 +37,7 @@ What accumulates in that directory:
 | `assets/*` | Reusable components, starting with a shared stylesheet, so the lessons look like one course |
 | `NOTES.md` | Your stated teaching preferences |
 
-Two notes on that list. A glossary suits most topics, but the skill ships a `GLOSSARY-FORMAT.md` that `SKILL.md` no longer links to, so you only get one if you ask ([issue #559](https://github.com/mattpocock/skills/issues/559)). All of it lands in the directory you ran `/teach` in.
+Two notes on that list. A glossary suits most topics, but the skill ships a `GLOSSARY-FORMAT.md` that `SKILL.md` no longer links to, so you only get one if you ask ([issue #559](https://github.com/mattpocock/skills/issues/559)). All of it lands in the directory the command was run in, and in Pi that is the directory the session was started in: never beside the loaded `SKILL.md`, and never in the installed package clone under `~/.pi/agent/git/`, which is a git checkout that advances when the fork's `main` advances and would lose a course on the next merge. Where the session started in one of those places, the skill names it and asks where the teaching workspace should live before it writes.
 
 ## Storage strength, not fluency
 
@@ -56,10 +58,10 @@ Lessons are built from **components** in `assets/`: stylesheets, quiz widgets, s
 ## Common questions
 
 **Where does it put the files? Mine ended up in `~/.claude/skills`.**
-In the directory you ran `/teach` in ([#377](https://github.com/mattpocock/skills/issues/377)).
+In the directory the command was run in ([#377](https://github.com/mattpocock/skills/issues/377)). In Pi that is the directory the session was started in: the loaded `SKILL.md` sits in the installed package clone, so a session started in that clone or in a skills checkout writes the whole course there, and the clone advances on merge. The skill names both places and asks where the workspace should live before writing, and the fix is to start the session in the teaching workspace rather than to move files afterwards.
 
 **Do I stay in one session, or start a new one per lesson?**
-All three approaches work: staying in the same session, re-invoking `/teach` in a new session, or opening a new session in the same folder. Each lesson is its own invocation. The course state lives in the folder, not in the conversation. Common practice is to open a fresh session in the workspace and say `/teach next lesson for <topic>`.
+All three approaches work: staying in the same session, re-invoking `/skill:teach` in a new session, or opening a new session in the same folder. Each lesson is its own invocation. The course state lives in the folder, not in the conversation. Common practice is to open a fresh session in the workspace and say `/skill:teach next lesson for <topic>`.
 
 **How do I know it isn't teaching me something it made up?**
 You don't, on the skill's word alone. You read the primary sources. `teach` is not reliable enough to trust unchecked, and no skill built on an LLM is. The grounding (`RESOURCES.md`, citations in every lesson, one recommended primary source per lesson) makes it cheap to check a lesson. It does not remove the need to check. This failure has happened: one user learning a 2x2 Rubik's cube got made-up move sequences that don't solve it. In a case like that, check the model, the harness, the effort setting, and the source. Risk is highest in procedural domains with precise notation, and lowest where the output is immediately verifiable, like code you can run.
@@ -85,7 +87,7 @@ There is no canonical answer, and the reported differences are large. Users repo
 - `RESOURCES.md` fills up before the lessons do, and each lesson names one primary source worth reading yourself.
 - Claims in a lesson carry links out. A lesson with no citations is the skill teaching from memory.
 - A lesson takes one sitting and leaves you able to do one thing you couldn't before.
-- Opening a fresh session in the folder and saying "next lesson" continues the course instead of restarting it.
+- Opening a fresh session in the folder and typing `/skill:teach next lesson for <topic>` continues the course instead of restarting it.
 - `learning-records/` grows, and lessons stop re-teaching what you have already demonstrated.
 - The lessons look like one course: they link the stylesheet in `assets/` rather than each carrying its own.
 - A question that needs judgement gets you pointed at a forum, subreddit or class, not just an answer.
@@ -94,4 +96,4 @@ There is no canonical answer, and the reported differences are large. Users repo
 
 `teach` is a **reach-for-it-anytime standalone**. It is not a step in a build chain and shares no artifacts with the engineering flow; it works in its own directory for as long as you study the topic.
 
-Its one real neighbour is [handoff](https://aihero.dev/skills-handoff). Together they answer "what do I do if I'm being grilled about something I don't understand?" Don't stop the grilling to learn. `/handoff` to a teaching workspace, learn the topic there with `/teach`, then go back and continue where you left off. The nearby alternative is [research](https://aihero.dev/skills-research), for when what you want is a cited document rather than lessons and retention. When you are not sure which skill or flow fits, [ask-matt](https://aihero.dev/skills-ask-matt) routes you over the whole set.
+Its one real neighbour is [handoff](https://aihero.dev/skills-handoff). Together they answer "what do I do if I'm being grilled about something I don't understand?" Don't stop the grilling to learn. `/skill:handoff` to a teaching workspace, learn the topic there with `/skill:teach`, then go back and continue where you left off. The nearby alternative is [research](https://aihero.dev/skills-research), for when what you want is a cited document rather than lessons and retention. When you are not sure which skill or flow fits, [ask-matt](https://aihero.dev/skills-ask-matt) routes you over the whole set.
