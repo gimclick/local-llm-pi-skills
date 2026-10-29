@@ -1,3 +1,5 @@
+> **This fork (Pi adaptation):** `wizard` is model-invoked and **registered in this fork's Pi manifest** as the twenty-third skill, so Pi advertises it by name, description and path in the agent's `<available_skills>` block, reaches for it automatically when a task fits, and the human can force it by typing `/skill:wizard` (upstream harnesses type `/wizard`). Its `SKILL.md` carries upstream's 4,123-byte file byte-identical as its prefix at the pinned commit `49dd158d1076134a641b33efb035946536778336`, its `template.sh` is byte-identical in full at 9,498 bytes and mode 100644, and its `agents/openai.yaml` is byte-identical in full at 96 bytes, so the four steps, the repo-first scoping, the rule that every `secrets.*` and `vars.*` reference in CI is a value the wizard must produce, the stage-list confirmation, the bar the template sets, and the never-hand-edited library above the `STAGES` marker are upstream's. It names no other skill, so the adaptation is entirely appended: one `## Pi execution and authorization` section that states the generated script is the human's to run (Pi's shell is non-interactive, so the stdin reads hit EOF and the run captures nothing), where the script and the values it writes land relative to the project under review, that the browser is the human's so no rendered inspection happens in this session, and that the script write and any commit-plus-README link are gated on the human's approval. It is **Implemented** in the README's maturity categories: registered and adapted here, with no wizard generated and no script run, so nothing on this page has been exercised. One name this page links is not registered in this fork, [ask-matt](https://aihero.dev/skills-ask-matt); it is upstream material Pi does not load, so its mention here is upstream's routing rather than a command a Pi session can type. The shared runtime contract, including the maturity categories, is in [the README](../../README.md).
+
 ## What it does
 
 `wizard` generates an interactive bash script that walks a human, step by step, through a manual procedure: wiring up third-party services, running a one-off migration, moving a project from state A to state B. It opens each URL, says what to click and copy, captures what comes back, and writes it into `.env` files and GitHub Actions secrets.
@@ -6,7 +8,7 @@ The [agent](https://www.aihero.dev/ai-coding-dictionary/agent) writes the script
 
 ## When to reach for it
 
-You can type `/wizard`, and the agent can also reach for it on its own. When it hits a step you have to take (a key it can't mint, a dashboard it can't click), it builds you a wizard instead of writing the instructions into the chat, where they scroll away.
+You can type `/skill:wizard` in Pi (upstream harnesses type `/wizard`), and the agent can also reach for it on its own. When it hits a step you have to take (a key it can't mint, a dashboard it can't click), it builds you a wizard instead of writing the instructions into the chat, where they scroll away.
 
 Reach for it when the next thing blocking you is a trip through a dashboard:
 
@@ -72,11 +74,11 @@ Nowhere in particular. It's a standalone, not a chain step. The common guess is 
 
 **Does it work outside Claude Code?**
 
-The script does. It's plain bash, and it runs the same whatever [harness](https://www.aihero.dev/ai-coding-dictionary/harness) generated it. The skill itself is model-invoked, so it's listed everywhere: type `/wizard` in Claude Code or `$wizard` in Codex, or just describe the setup you're stuck on. Being model-invoked also keeps it clear of [#693](https://github.com/mattpocock/skills/issues/693), where Claude's desktop and web apps drop *user-invoked* skills from the [model](https://www.aihero.dev/ai-coding-dictionary/model)'s listing and report them as not installed.
+The script does. It's plain bash, and it runs the same whatever [harness](https://www.aihero.dev/ai-coding-dictionary/harness) generated it. The skill itself is model-invoked, so it's listed everywhere: type `/skill:wizard` in Pi, `/wizard` in Claude Code or `$wizard` in Codex, or just describe the setup you're stuck on. Being model-invoked also keeps it clear of [#693](https://github.com/mattpocock/skills/issues/693), where Claude's desktop and web apps drop *user-invoked* skills from the [model](https://www.aihero.dev/ai-coding-dictionary/model)'s listing and report them as not installed.
 
 **Didn't this used to be user-invoked?**
 
-It did. It's now model-invoked, so the agent reaches for it unprompted when it hits a step you have to take. Nothing you could do before stopped working. Model invocation lets the agent call the skill as well as you, so `/wizard` behaves as it did. The change fixes one failure. Before, an agent that hit a credentials wall mid-build dumped six numbered steps into the chat for you to follow by hand. Now it writes a wizard.
+It did. It's now model-invoked, so the agent reaches for it unprompted when it hits a step you have to take. Nothing you could do before stopped working. Model invocation lets the agent call the skill as well as you, so `/wizard` behaves as it did (in Pi, type `/skill:wizard`). The change fixes one failure. Before, an agent that hit a credentials wall mid-build dumped six numbered steps into the chat for you to follow by hand. Now it writes a wizard.
 
 **It used to be in `in-progress/`. Where is it now?**
 
