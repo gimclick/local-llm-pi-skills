@@ -42,3 +42,14 @@ Hold the bar the template sets: open the URL before asking for its value, use `a
 - `chmod +x <script>`.
 - Don't run it end-to-end yourself: it opens browsers and blocks on human input. Trace it statically instead: every value from step 1 is captured and lands where step 1 said, and every `set_secret` name exactly matches a `secrets.*` reference in CI.
 - Tell the user how to run it. If it's a repeatable setup path, commit it and link it from the README so the next person runs the script instead of asking an AI.
+
+## Pi execution and authorization
+
+This skill writes a script and stops. It never runs one, and this fork's shell cannot run it: `ask`, `ask_secret`, `pause`, and `confirm` read from stdin, so in the agent's non-interactive shell they get EOF, `set -euo pipefail` aborts the run, and nothing is captured. Upstream's "Don't run it end-to-end yourself" stays upstream's rule; this section says only what Pi can and cannot do around it.
+
+- **The run belongs to the human's terminal.** Hand over the exact command to run, and the directory to run it in. A partial run here is not a substitute for the real one: a stage that hits EOF fails quietly, so a trace run in this session proves nothing about a run there. What upstream's step 4 asks for here (`bash -n`, `shellcheck` where available, `chmod +x`) is non-interactive shell work, and it runs as written.
+- **The script lands where the human will run it.** Upstream's "a scratch or `scripts/` path" resolves to the OS temp directory (`$TMPDIR`, else `/tmp`) for a throwaway wizard, or the target project's `scripts/` for one that is kept. Never this checkout, never the installed package clone, never beside the loaded `SKILL.md`.
+- **The values land where the script is run, not where it was written.** `ENV_FILE="${ENV_FILE:-.env}"` is relative to the current directory, so the hand-off names the working directory as well as the command. The agent writes no `.env` and runs no `gh` itself.
+- **The browser is the human's.** `open_url` opens in the human's shell. This session opens no URL and inspects no rendered page, so a stage's click path comes from the human or from the docs, which is upstream's rule in step 2, and no report claims a rendered inspection.
+- **Persistent writes need the human.** Before the first file, state the write set: the script path, and where each captured value will go. Wait for the answer. Upstream's "commit it and link it from the README" is a commit plus a tracked-file edit: separately authorized, and not implied by this skill deciding the path is repeatable. `gh secret` and `gh variable` writes happen inside the human's run, so they stay the human's too.
+- **Nothing here delegates.** One live model request at a time: scope, map, author, and verify in this session.
