@@ -140,10 +140,21 @@ Re-run both commands to update.
 </details>
 
 <details>
+<summary><strong>Pi</strong> (manual updates)</summary>
+
+```bash
+pi install git:github.com/gimclick/local-llm-pi-skills
+```
+
+Refresh with `pi update git:github.com/gimclick/local-llm-pi-skills`. Pi loads only the skills `package.json` → `pi.skills` names, so `misc/` and `in-progress/` are not loaded. Do not also run `npx skills add mattpocock/skills -a pi`: two surfaces carrying the same skill name print a `[Skill conflicts]` block at startup, and Pi keeps the first skill it discovers and skips the rest.
+
+</details>
+
+<details>
 <summary><strong>Any other agent, or editable files</strong> (manual updates)</summary>
 
 ```bash
-npx skills@latest add mattpocock/skills -a <agent>  # cursor, opencode, devin, windsurf, amp, pi; omit -a to choose
+npx skills@latest add mattpocock/skills -a <agent>  # cursor, opencode, devin, windsurf, amp; omit -a to choose
 ```
 
 When the installer asks which skills to take, include `setup-matt-pocock-skills`. To update, run `npx skills@latest update`, and re-run `add` to pick up new skills.
@@ -156,6 +167,8 @@ When the installer asks which skills to take, include `setup-matt-pocock-skills`
 <summary><strong>Pi</strong> (this fork's target)</summary>
 
 Pi discovers skills by scanning its configured skill directories for folders that contain `SKILL.md`; it advertises each one's name, description and path, and loads the full instructions only when a task calls for them. Force a load with `/skill:<name>`.
+
+This fork's Pi route is the package install above: `pi install git:github.com/gimclick/local-llm-pi-skills`, refreshed with `pi update git:github.com/gimclick/local-llm-pi-skills`. The clone carries the whole tree, including `misc/` and `in-progress/`, but only the names `pi.skills` declares are loaded.
 
 This fork carries a `pi.skills` manifest in `package.json` that selects the twenty skills this fork loads: the adapted Wayfinder flow, the ticket step that cuts a build from the spec that flow produces, the build step that works one ticket of that spec in a fresh session, the red → green reference that build runs against, the two-axis review that checks what the build produced, the shape of the body that publishes what the build produced, the on-ramp for issue work that arrives from outside, the document that carries work in flight to a session somewhere else, the reference for writing the documents every one of them reads, the retrospective that improves the environment those skills run in, the deep-module vocabulary the design questions speak in, the diagnosis discipline for a defect whose symptom you can name, and the survey that finds the deepening candidates those design questions then work on, and the one-session interview that sharpens a plan or design while writing its glossary and ADRs into the repo as it goes. Each row also carries the skill's Pi status (see **Maturity status** above): the twelve skills in the planning-to-implementation pipeline and the pull-request body that publishes its output are **Validated**, as are `writing-for-agents`, `retro`, `handoff`, `diagnosing-bugs`, `codebase-design`, and `improve-codebase-architecture` each under the scope stated below, so eighteen of the twenty are **Validated** and `triage` and `grill-with-docs` sit in **Implemented** until a representative run of each has been exercised here.
 
