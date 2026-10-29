@@ -33,7 +33,8 @@
       "./skills/productivity/wait-what",
       "./skills/productivity/to-questionnaire",
       "./skills/engineering/wizard",
-      "./skills/productivity/teach"
+      "./skills/productivity/teach",
+      "./skills/productivity/grill-me"
     ]
   },
   "scripts": {
